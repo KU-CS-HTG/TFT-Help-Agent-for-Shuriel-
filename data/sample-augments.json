@@ -1,0 +1,23 @@
+{
+  "_note": "이 파일은 실제 TFT Set 18 / 패치 18.2b 데이터가 아닙니다. Community Dragon 접근이 막힌 환경에서 앱 골격을 확인하기 위한 더미(placeholder) 데이터입니다. npm run fetch:augments 로 실제 데이터를 받아오면 이 데이터는 덮어써집니다.",
+  "augments": [
+    { "apiName": "SAMPLE_Silver_01", "name": "샘플 실버 증강체 1", "descriptionGame": "실버 등급 더미 설명입니다.", "rarity": "silver" },
+    { "apiName": "SAMPLE_Silver_02", "name": "샘플 실버 증강체 2", "descriptionGame": "실버 등급 더미 설명입니다.", "rarity": "silver" },
+    { "apiName": "SAMPLE_Silver_03", "name": "샘플 실버 증강체 3", "descriptionGame": "실버 등급 더미 설명입니다.", "rarity": "silver" },
+    { "apiName": "SAMPLE_Silver_04", "name": "샘플 실버 증강체 4", "descriptionGame": "실버 등급 더미 설명입니다.", "rarity": "silver" },
+    { "apiName": "SAMPLE_Silver_05", "name": "샘플 실버 증강체 5", "descriptionGame": "실버 등급 더미 설명입니다.", "rarity": "silver" },
+    { "apiName": "SAMPLE_Silver_06", "name": "샘플 실버 증강체 6", "descriptionGame": "실버 등급 더미 설명입니다.", "rarity": "silver" },
+    { "apiName": "SAMPLE_Gold_01", "name": "샘플 골드 증강체 1", "descriptionGame": "골드 등급 더미 설명입니다.", "rarity": "gold" },
+    { "apiName": "SAMPLE_Gold_02", "name": "샘플 골드 증강체 2", "descriptionGame": "골드 등급 더미 설명입니다.", "rarity": "gold" },
+    { "apiName": "SAMPLE_Gold_03", "name": "샘플 골드 증강체 3", "descriptionGame": "골드 등급 더미 설명입니다.", "rarity": "gold" },
+    { "apiName": "SAMPLE_Gold_04", "name": "샘플 골드 증강체 4", "descriptionGame": "골드 등급 더미 설명입니다.", "rarity": "gold" },
+    { "apiName": "SAMPLE_Gold_05", "name": "샘플 골드 증강체 5", "descriptionGame": "골드 등급 더미 설명입니다.", "rarity": "gold" },
+    { "apiName": "SAMPLE_Gold_06", "name": "샘플 골드 증강체 6", "descriptionGame": "골드 등급 더미 설명입니다.", "rarity": "gold" },
+    { "apiName": "SAMPLE_Prism_01", "name": "샘플 프리즘 증강체 1", "descriptionGame": "프리즘 등급 더미 설명입니다.", "rarity": "prism" },
+    { "apiName": "SAMPLE_Prism_02", "name": "샘플 프리즘 증강체 2", "descriptionGame": "프리즘 등급 더미 설명입니다.", "rarity": "prism" },
+    { "apiName": "SAMPLE_Prism_03", "name": "샘플 프리즘 증강체 3", "descriptionGame": "프리즘 등급 더미 설명입니다.", "rarity": "prism" },
+    { "apiName": "SAMPLE_Prism_04", "name": "샘플 프리즘 증강체 4", "descriptionGame": "프리즘 등급 더미 설명입니다.", "rarity": "prism" },
+    { "apiName": "SAMPLE_Prism_05", "name": "샘플 프리즘 증강체 5", "descriptionGame": "프리즘 등급 더미 설명입니다.", "rarity": "prism" },
+    { "apiName": "SAMPLE_Prism_06", "name": "샘플 프리즘 증강체 6", "descriptionGame": "프리즘 등급 더미 설명입니다.", "rarity": "prism" }
+  ]
+}
