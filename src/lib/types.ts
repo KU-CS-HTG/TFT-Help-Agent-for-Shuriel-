@@ -10,6 +10,7 @@ export type Augment = {
   api_name: string;
   name: string;
   description_game: string;
+  description_game_overridden: boolean;
   icon_url: string | null;
   rarity: Rarity;
   stage: Stage;

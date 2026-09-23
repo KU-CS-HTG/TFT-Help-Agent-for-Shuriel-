@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import type { AugmentWithExtras } from "@/lib/types";
 import type { Stage } from "@/lib/constants";
 import { updateNoteAction } from "@/lib/actions/noteActions";
+import { updateGameDescriptionAction } from "@/lib/actions/descriptionActions";
 import { addImagesAction, deleteImageAction } from "@/lib/actions/imageActions";
 
 interface Props {
@@ -18,6 +19,7 @@ interface Props {
 export default function AugmentModal({ augment, stage, onClose, onUpdate }: Props) {
   const [noteContent, setNoteContent] = useState(augment.note?.content ?? "");
   const [mode, setMode] = useState<"edit" | "preview">("edit");
+  const [descriptionContent, setDescriptionContent] = useState(augment.description_game);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const addFileInputRef = useRef<HTMLInputElement>(null);
@@ -38,6 +40,18 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
   function handleClear() {
     setNoteContent("");
     saveNote("");
+  }
+
+  function saveDescription() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const updated = await updateGameDescriptionAction(augment.id, stage, descriptionContent);
+        onUpdate({ ...augment, ...updated });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "저장 실패");
+      }
+    });
   }
 
   function handleAddFiles(files: FileList | null) {
@@ -128,12 +142,32 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
         </div>
 
         <div className="mb-4 rounded-lg bg-neutral-950 p-3">
-          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-neutral-600">
-            게임 내 설명
+          <div className="mb-1 flex items-center justify-between">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-600">
+              게임 내 설명
+              {augment.description_game_overridden && (
+                <span className="ml-2 normal-case text-indigo-400">(직접 수정됨)</span>
+              )}
+            </p>
+          </div>
+          <p className="mb-2 text-[10px] text-neutral-600">
+            @Gold@ 같은 @ 표시는 게임 데이터의 원본 변수라 자동으로 숫자가 채워지지 않습니다. 필요하면
+            아래에서 직접 실제 값으로 고쳐서 저장하세요.
           </p>
-          <p className="whitespace-pre-wrap text-xs text-neutral-500">
-            {augment.description_game || "설명 없음"}
-          </p>
+          <textarea
+            value={descriptionContent}
+            onChange={(e) => setDescriptionContent(e.target.value)}
+            rows={4}
+            className="w-full resize-y rounded-lg border border-neutral-800 bg-neutral-900 p-2 text-xs text-neutral-300 outline-none focus:border-indigo-500"
+          />
+          <button
+            type="button"
+            disabled={pending || descriptionContent === augment.description_game}
+            onClick={saveDescription}
+            className="mt-2 rounded-lg bg-neutral-800 px-3 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-700 disabled:opacity-50"
+          >
+            저장
+          </button>
         </div>
 
         <div className="mb-4">

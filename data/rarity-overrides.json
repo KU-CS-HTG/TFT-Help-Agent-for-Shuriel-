@@ -1,0 +1,4 @@
+{
+  "_note": "Community Dragon 데이터에는 증강체 등급(실버/골드/프리즘) 정보가 들어있지 않습니다. npm run fetch:augments를 실행하면 등급을 못 찾은 증강체가 이 파일에 자동으로 추가됩니다 (rarity: null). 본인이 아는 실제 등급으로 'silver' / 'gold' / 'prism' 중 하나를 채운 뒤 다시 npm run fetch:augments를 실행하면 반영됩니다.",
+  "entries": {}
+}
