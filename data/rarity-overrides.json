@@ -1,4 +1,1005 @@
 {
   "_note": "Community Dragon 데이터에는 증강체 등급(실버/골드/프리즘) 정보가 들어있지 않습니다. npm run fetch:augments를 실행하면 등급을 못 찾은 증강체가 이 파일에 자동으로 추가됩니다 (rarity: null). 본인이 아는 실제 등급으로 'silver' / 'gold' / 'prism' 중 하나를 채운 뒤 다시 npm run fetch:augments를 실행하면 반영됩니다.",
-  "entries": {}
+  "entries": {
+    "DA_18_BigGrabBag": {
+      "name": "큰 꾸러미",
+      "rarity": "gold"
+    },
+    "DA_18_BlossomTraitAugment": {
+      "name": "꽃의 부름",
+      "rarity": "gold"
+    },
+    "DA_18_BranchingOut": {
+      "name": "가지 뻗기",
+      "rarity": "silver"
+    },
+    "DA_18_BranchingOutPlus": {
+      "name": "가지 뻗기+",
+      "rarity": "silver"
+    },
+    "DA_18_CaretakersAlly": {
+      "name": "수호자의 친구",
+      "rarity": "silver"
+    },
+    "DA_18_CovenTraitAugment": {
+      "name": "악의 여단 수행사제",
+      "rarity": "gold"
+    },
+    "DA_18_CovenTraitAugment_LootToAP": {
+      "name": "어둠의 의식",
+      "rarity": "gold"
+    },
+    "DA_18_DuoQueue": {
+      "name": "2인조",
+      "rarity": "gold"
+    },
+    "DA_18_ElderwoodTraitAugment": {
+      "name": "자연의 안식처",
+      "rarity": "gold"
+    },
+    "DA_18_FOURcing": {
+      "name": "4단계 집중",
+      "rarity": "gold"
+    },
+    "DA_18_FaeTraitAugment": {
+      "name": "커져라",
+      "rarity": "gold"
+    },
+    "DA_18_FloraFatalisAugment": {
+      "name": "흡수하는 꽃",
+      "rarity": "gold"
+    },
+    "DA_18_GoodForSomethingI": {
+      "name": "다 쓸 데가 있다니까 I",
+      "rarity": "silver"
+    },
+    "DA_18_LunarTraitAugment": {
+      "name": "해와 달",
+      "rarity": "gold"
+    },
+    "DA_18_LunarTraitAugmentPlus": {
+      "name": "해와 달+",
+      "rarity": "gold"
+    },
+    "DA_18_LuxAugmentII": {
+      "name": "계열의 대가",
+      "rarity": "prismatic"
+    },
+    "DA_18_OneTwoFive": {
+      "name": "하나, 둘, 다섯!",
+      "rarity": "silver"
+    },
+    "DA_18_OnesTwosThree": {
+      "name": "하나, 둘, 셋",
+      "rarity": "silver"
+    },
+    "DA_18_PrimalAugmentPlus_Nidalee": {
+      "name": "내면의 야수+",
+      "rarity": "gold"
+    },
+    "DA_18_PrimalAugmentPlus_Sivir": {
+      "name": "내면의 야수+",
+      "rarity": "gold"
+    },
+    "DA_18_PrimalAugment_Nidalee": {
+      "name": "내면의 야수",
+      "rarity": "gold"
+    },
+    "DA_18_PrimalAugment_Sivir": {
+      "name": "내면의 야수",
+      "rarity": "gold"
+    },
+    "DA_18_ResidualMagic": {
+      "name": "잔류 마법",
+      "rarity": "silver"
+    },
+    "DA_18_ResidualMagicPlus": {
+      "name": "잔류 마법 +",
+      "rarity": "silver"
+    },
+    "DA_18_ResidualMagicPlusPlus": {
+      "name": "잔류 마법 ++",
+      "rarity": "silver"
+    },
+    "DA_18_RiftbeastTraitAugment": {
+      "name": "종결자 협곡야수",
+      "rarity": "gold"
+    },
+    "DA_18_RivalsAugment": {
+      "name": "경쟁을 넘어서",
+      "rarity": "silver"
+    },
+    "DA_18_SolarTraitAugment": {
+      "name": "태양의 부름을 받은 자",
+      "rarity": "gold"
+    },
+    "DA_18_SprykinAugment": {
+      "name": "작은 털뭉치 친구",
+      "rarity": "gold"
+    },
+    "DA_18_WeightTheWorth": {
+      "name": "미학의 기다림",
+      "rarity": "gold"
+    },
+    "DA_18_WispRebatePlus": {
+      "name": "수호령 환급",
+      "rarity": "silver"
+    },
+    "DA_18_WispRebatePlusPlus": {
+      "name": "수호령 환급+",
+      "rarity": "silver"
+    },
+    "DA_AdvancedLoan": {
+      "name": "대출 선지급",
+      "rarity": "gold"
+    },
+    "DA_AdvancedLoanPlus": {
+      "name": "대출 선지급+",
+      "rarity": "gold"
+    },
+    "DA_ArcaneViktory": {
+      "name": "아케인 빅토르이!",
+      "rarity": "gold"
+    },
+    "DA_Ascension": {
+      "name": "초월",
+      "rarity": "gold"
+    },
+    "DA_AugmentedPower": {
+      "name": "증강된 힘",
+      "rarity": "silver"
+    },
+    "DA_BacklineBlueprint": {
+      "name": "후방 설계도",
+      "rarity": "gold"
+    },
+    "DA_BackupBows": {
+      "name": "예비 활",
+      "rarity": "silver"
+    },
+    "DA_BandOfThieves": {
+      "name": "도둑 무리",
+      "rarity": "silver"
+    },
+    "DA_BandOfThievesII": {
+      "name": "도둑 무리 II",
+      "rarity": "prismatic"
+    },
+    "DA_BandOfThievesIIPlus": {
+      "name": "도둑 무리 II+",
+      "rarity": "prismatic"
+    },
+    "DA_BandOfThievesIIPlusPlus": {
+      "name": "도둑 무리 II++",
+      "rarity": "prismatic"
+    },
+    "DA_BaronsLair": {
+      "name": "남작의 소굴",
+      "rarity": "prismatic"
+    },
+    "DA_BeltOverflow": {
+      "name": "넘치는 허리띠",
+      "rarity": "prismatic"
+    },
+    "DA_BirthdayPresent": {
+      "name": "생일 선물",
+      "rarity": "prismatic"
+    },
+    "DA_BirthdayReunion": {
+      "name": "생일 모임",
+      "rarity": "gold"
+    },
+    "DA_BlackthornTraitAugment": {
+      "name": "아이템 추출",
+      "rarity": "gold"
+    },
+    "DA_BodyguardTraining": {
+      "name": "경호대 훈련",
+      "rarity": "gold"
+    },
+    "DA_BonusGift": {
+      "name": "추가 선물",
+      "rarity": "gold"
+    },
+    "DA_BonusGiftPlus": {
+      "name": "추가 선물+",
+      "rarity": "gold"
+    },
+    "DA_BoosterPack": {
+      "name": "부스터 팩",
+      "rarity": "gold"
+    },
+    "DA_BoosterPackPlus": {
+      "name": "부스터 팩+",
+      "rarity": "gold"
+    },
+    "DA_BoosterPackPlusPlus": {
+      "name": "부스터 팩++",
+      "rarity": "gold"
+    },
+    "DA_BoxingLessons": {
+      "name": "권투 교습",
+      "rarity": "silver"
+    },
+    "DA_BronzeForLifeI": {
+      "name": "영원한 브론즈 I",
+      "rarity": "gold"
+    },
+    "DA_BronzeForLifeII": {
+      "name": "영원한 브론즈 II",
+      "rarity": "prismatic"
+    },
+    "DA_BuildABud": {
+      "name": "친구 만들기",
+      "rarity": "prismatic"
+    },
+    "DA_BuriedTreasuresIII": {
+      "name": "파묻힌 보물 III",
+      "rarity": "prismatic"
+    },
+    "DA_CallToChaos": {
+      "name": "혼돈의 부름",
+      "rarity": "prismatic"
+    },
+    "DA_CalledShot": {
+      "name": "결과 예측",
+      "rarity": "silver"
+    },
+    "DA_CapitalGainsI": {
+      "name": "자본 이익 I",
+      "rarity": "silver"
+    },
+    "DA_CapitalGainsII": {
+      "name": "자본 이익 II",
+      "rarity": "gold"
+    },
+    "DA_CaretakersFavor": {
+      "name": "수호자의 호의",
+      "rarity": "gold"
+    },
+    "DA_CarveAPath": {
+      "name": "길을 내라",
+      "rarity": "silver"
+    },
+    "DA_CelestialBlessingI": {
+      "name": "천상의 축복 I",
+      "rarity": "silver"
+    },
+    "DA_CelestialBlessingII": {
+      "name": "천상의 축복 II",
+      "rarity": "gold"
+    },
+    "DA_CelestialBlessingIII": {
+      "name": "천상의 축복 III",
+      "rarity": "prismatic"
+    },
+    "DA_ChallengersGrace": {
+      "name": "도전자의 은총",
+      "rarity": "prismatic"
+    },
+    "DA_ChampDelivery": {
+      "name": "챔피언 배달",
+      "rarity": "silver"
+    },
+    "DA_ChampDeliveryPlus": {
+      "name": "챔피언 배달+",
+      "rarity": "silver"
+    },
+    "DA_ChampDeliveryPlusPlus": {
+      "name": "챔피언 배달++",
+      "rarity": "silver"
+    },
+    "DA_ClearMind": {
+      "name": "맑은 정신",
+      "rarity": "gold"
+    },
+    "DA_ClockworkAccelerator": {
+      "name": "시계태엽 윤활유",
+      "rarity": "gold"
+    },
+    "DA_ClutteredMind": {
+      "name": "어수선한 마음",
+      "rarity": "gold"
+    },
+    "DA_CognitiveOverload": {
+      "name": "인지 과부하",
+      "rarity": "gold"
+    },
+    "DA_CognitiveTax": {
+      "name": "인지세",
+      "rarity": "silver"
+    },
+    "DA_CognitiveTaxPlus": {
+      "name": "인지세+",
+      "rarity": "silver"
+    },
+    "DA_ComebackStory": {
+      "name": "역전의 서막",
+      "rarity": "prismatic"
+    },
+    "DA_CommerceCore": {
+      "name": "거래 중심지",
+      "rarity": "prismatic"
+    },
+    "DA_ComponentBuffet": {
+      "name": "입맛대로 고르는 부품",
+      "rarity": "silver"
+    },
+    "DA_ComponentQuest": {
+      "name": "조합 아이템 퀘스트",
+      "rarity": "prismatic"
+    },
+    "DA_CookingPot": {
+      "name": "요리용 냄비",
+      "rarity": "gold"
+    },
+    "DA_Coronation": {
+      "name": "대관식",
+      "rarity": "prismatic"
+    },
+    "DA_Corrosion": {
+      "name": "부식",
+      "rarity": "silver"
+    },
+    "DA_CraftedCrafting": {
+      "name": "정교한 공예",
+      "rarity": "silver"
+    },
+    "DA_CryMeARiver": {
+      "name": "실컷 울어봐라",
+      "rarity": "gold"
+    },
+    "DA_CursedCrown": {
+      "name": "저주받은 왕관",
+      "rarity": "prismatic"
+    },
+    "DA_CyberneticImplants_Gold": {
+      "name": "사이버네틱 이식술",
+      "rarity": "gold"
+    },
+    "DA_CyberneticUplink_Gold": {
+      "name": "사이버네틱 통신",
+      "rarity": "gold"
+    },
+    "DA_DeadlierBlades": {
+      "name": "치명적인 칼날",
+      "rarity": "prismatic"
+    },
+    "DA_DeadlierCaps": {
+      "name": "더욱 치명적인 모자",
+      "rarity": "prismatic"
+    },
+    "DA_Dummify": {
+      "name": "훈련 봇 변환",
+      "rarity": "silver"
+    },
+    "DA_EarlyLearnings": {
+      "name": "조기 교육",
+      "rarity": "gold"
+    },
+    "DA_ElectrochargeI": {
+      "name": "전기 충전 I",
+      "rarity": "silver"
+    },
+    "DA_ElectrochargeII": {
+      "name": "전기 충전 II",
+      "rarity": "gold"
+    },
+    "DA_EpicRolldown": {
+      "name": "서사적 새로고침",
+      "rarity": "gold"
+    },
+    "DA_Epoch": {
+      "name": "새로운 시대",
+      "rarity": "gold"
+    },
+    "DA_EpochPlus": {
+      "name": "새로운 시대+",
+      "rarity": "gold"
+    },
+    "DA_ExclusiveCustomization": {
+      "name": "특별 맞춤 설정",
+      "rarity": "gold"
+    },
+    "DA_Expedition": {
+      "name": "탐사",
+      "rarity": "silver"
+    },
+    "DA_ExplosiveGrowth": {
+      "name": "폭발적인 성장",
+      "rarity": "gold"
+    },
+    "DA_ExplosiveGrowthPlus": {
+      "name": "폭발적인 성장+",
+      "rarity": "gold"
+    },
+    "DA_ExtraBuckles": {
+      "name": "추가 버클",
+      "rarity": "silver"
+    },
+    "DA_FeelingLucky": {
+      "name": "행운의 기운",
+      "rarity": "silver"
+    },
+    "DA_FindYourCenter": {
+      "name": "중심 잡기",
+      "rarity": "silver"
+    },
+    "DA_Flexible": {
+      "name": "유연함",
+      "rarity": "prismatic"
+    },
+    "DA_FlowingTears": {
+      "name": "흐르는 눈물",
+      "rarity": "silver"
+    },
+    "DA_FocusedFire": {
+      "name": "화력 집중",
+      "rarity": "silver"
+    },
+    "DA_ForgedInStrength": {
+      "name": "힘을 실은 제련",
+      "rarity": "prismatic"
+    },
+    "DA_FrontlineFoundation": {
+      "name": "전방의 토대",
+      "rarity": "gold"
+    },
+    "DA_FutureFocused": {
+      "name": "미래 집중",
+      "rarity": "silver"
+    },
+    "DA_GainGold": {
+      "name": "21골드 획득",
+      "rarity": "gold"
+    },
+    "DA_GiantAndMighty": {
+      "name": "거대하고 강력한",
+      "rarity": "prismatic"
+    },
+    "DA_GildedSteel": {
+      "name": "도금 강철",
+      "rarity": "gold"
+    },
+    "DA_GlassCannon_Gold": {
+      "name": "유리 대포 II",
+      "rarity": "gold"
+    },
+    "DA_GlassCannon_Silver": {
+      "name": "유리 대포 I",
+      "rarity": "silver"
+    },
+    "DA_GoingLong": {
+      "name": "장기 투자",
+      "rarity": "prismatic"
+    },
+    "DA_GoldDestiny": {
+      "name": "금빛 운명",
+      "rarity": "gold"
+    },
+    "DA_GoldDestinyPlus": {
+      "name": "금빛 운명+",
+      "rarity": "gold"
+    },
+    "DA_GoldenEgg": {
+      "name": "황금 알",
+      "rarity": "prismatic"
+    },
+    "DA_GoldenGamble": {
+      "name": "경품 추첨",
+      "rarity": "prismatic"
+    },
+    "DA_GoldenGamblePlus": {
+      "name": "경품 추첨+",
+      "rarity": "prismatic"
+    },
+    "DA_GoldenGamblePlusPlus": {
+      "name": "경품 추첨++",
+      "rarity": "prismatic"
+    },
+    "DA_GroupHugI": {
+      "name": "단체 포옹 I",
+      "rarity": "silver"
+    },
+    "DA_GroupHugII": {
+      "name": "단체 포옹 II",
+      "rarity": "gold"
+    },
+    "DA_HardBargain": {
+      "name": "유리한 조건",
+      "rarity": "gold"
+    },
+    "DA_HardCommit": {
+      "name": "극진한 헌신",
+      "rarity": "prismatic"
+    },
+    "DA_HealingOrbsI": {
+      "name": "회복의 구 I",
+      "rarity": "silver"
+    },
+    "DA_HealingOrbsII": {
+      "name": "회복의 구 II",
+      "rarity": "gold"
+    },
+    "DA_HeartOfSteel": {
+      "name": "강철의 심장",
+      "rarity": "gold"
+    },
+    "DA_HedgeFund": {
+      "name": "헤지 펀드",
+      "rarity": "prismatic"
+    },
+    "DA_HeroicGrabBag": {
+      "name": "영웅 꾸러미",
+      "rarity": "gold"
+    },
+    "DA_HeroicGrabBagPlus": {
+      "name": "영웅 꾸러미+",
+      "rarity": "gold"
+    },
+    "DA_HeroicGrabBagPlusPlus": {
+      "name": "영웅 꾸러미++",
+      "rarity": "gold"
+    },
+    "DA_HoldTheLine": {
+      "name": "진형 유지",
+      "rarity": "prismatic"
+    },
+    "DA_Hustler": {
+      "name": "수완가",
+      "rarity": "gold"
+    },
+    "DA_InfinityProtection": {
+      "name": "무한한 보호",
+      "rarity": "gold"
+    },
+    "DA_InvestedPlus": {
+      "name": "투자+",
+      "rarity": "prismatic"
+    },
+    "DA_InvestedPlusPlus": {
+      "name": "투자++",
+      "rarity": "prismatic"
+    },
+    "DA_InvestmentStrategy": {
+      "name": "투자 전략 II",
+      "rarity": "prismatic"
+    },
+    "DA_InvestmentStrategyI": {
+      "name": "투자 전략 I",
+      "rarity": "gold"
+    },
+    "DA_IronAssets": {
+      "name": "유용한 금속",
+      "rarity": "silver"
+    },
+    "DA_ItemGrabBag": {
+      "name": "아이템 꾸러미 I",
+      "rarity": "silver"
+    },
+    "DA_ItsMeBaby": {
+      "name": "이 몸 등장",
+      "rarity": "gold"
+    },
+    "DA_JeweledLotus_I": {
+      "name": "보석 연꽃 I",
+      "rarity": "gold"
+    },
+    "DA_JeweledLotus_II": {
+      "name": "보석 연꽃 II",
+      "rarity": "prismatic"
+    },
+    "DA_KickStart": {
+      "name": "시동 걸기",
+      "rarity": "silver"
+    },
+    "DA_Kingslayer": {
+      "name": "국왕시해자",
+      "rarity": "silver"
+    },
+    "DA_KnowYourEnemy": {
+      "name": "적을 알라",
+      "rarity": "gold"
+    },
+    "DA_LateGameScaling": {
+      "name": "후반 성장",
+      "rarity": "gold"
+    },
+    "DA_LateGameSpecialist": {
+      "name": "후반 전문가",
+      "rarity": "silver"
+    },
+    "DA_LatentForge": {
+      "name": "신중한 제작",
+      "rarity": "silver"
+    },
+    "DA_LegionOfThrees": {
+      "name": "3단계 군단",
+      "rarity": "gold"
+    },
+    "DA_LevelUp": {
+      "name": "레벨 업!",
+      "rarity": "prismatic"
+    },
+    "DA_LivingForge": {
+      "name": "간이 대장간",
+      "rarity": "prismatic"
+    },
+    "DA_LoadedDice": {
+      "name": "사기 주사위",
+      "rarity": "silver"
+    },
+    "DA_LuckyGloves": {
+      "name": "행운의 장갑",
+      "rarity": "prismatic"
+    },
+    "DA_LuckyGlovesPlus": {
+      "name": "행운의 장갑+",
+      "rarity": "prismatic"
+    },
+    "DA_LuxurySubscription": {
+      "name": "호화로운 정기 구독",
+      "rarity": "prismatic"
+    },
+    "DA_MagicRoll": {
+      "name": "마법 주사위",
+      "rarity": "gold"
+    },
+    "DA_MakeshiftArmorI": {
+      "name": "임시변통 방어구 I",
+      "rarity": "silver"
+    },
+    "DA_MakeshiftArmorII": {
+      "name": "임시변통 방어구 II",
+      "rarity": "gold"
+    },
+    "DA_MaliciousMonetization": {
+      "name": "악의적 수익 창출",
+      "rarity": "gold"
+    },
+    "DA_MaxBuild": {
+      "name": "극대화 빌드",
+      "rarity": "gold"
+    },
+    "DA_Min_Max": {
+      "name": "최적화",
+      "rarity": "prismatic"
+    },
+    "DA_MissedConnections": {
+      "name": "연결 불가",
+      "rarity": "silver"
+    },
+    "DA_MoneyHungryPlus": {
+      "name": "돈독+",
+      "rarity": "gold"
+    },
+    "DA_MoneyHungry_NotBroken": {
+      "name": "돈독",
+      "rarity": "gold"
+    },
+    "DA_MoneyMonsoon": {
+      "name": "돈 폭풍",
+      "rarity": "prismatic"
+    },
+    "DA_NestingAnvils": {
+      "name": "마트료시카 모루",
+      "rarity": "prismatic"
+    },
+    "DA_NestingAnvilsPlus": {
+      "name": "마트료시카 모루+",
+      "rarity": "prismatic"
+    },
+    "DA_NestingDollsPlus": {
+      "name": "마트료시카",
+      "rarity": "prismatic"
+    },
+    "DA_NestingDollsPlusPlus": {
+      "name": "마트료시카",
+      "rarity": "prismatic"
+    },
+    "DA_NoScoutNoPivot": {
+      "name": "단일 조합 사수",
+      "rarity": "gold"
+    },
+    "DA_OneBuffTwoBuff": {
+      "name": "붉고 푸른 효과",
+      "rarity": "prismatic"
+    },
+    "DA_PandorasBench": {
+      "name": "판도라의 대기석",
+      "rarity": "silver"
+    },
+    "DA_PandorasItemsI": {
+      "name": "판도라의 아이템 I",
+      "rarity": "silver"
+    },
+    "DA_PandorasItemsII": {
+      "name": "판도라의 아이템 II",
+      "rarity": "gold"
+    },
+    "DA_PandorasItemsIII": {
+      "name": "판도라의 아이템 III",
+      "rarity": "prismatic"
+    },
+    "DA_PartialAscension": {
+      "name": "불완전한 초월",
+      "rarity": "silver"
+    },
+    "DA_PatienceIsAVirtue": {
+      "name": "참는 자에게 복을",
+      "rarity": "silver"
+    },
+    "DA_PatientStudy": {
+      "name": "끈질긴 연구",
+      "rarity": "gold"
+    },
+    "DA_Pilfer": {
+      "name": "슬쩍하기",
+      "rarity": "gold"
+    },
+    "DA_PlotArmor": {
+      "name": "주인공 버프",
+      "rarity": "gold"
+    },
+    "DA_PortableForge": {
+      "name": "휴대용 대장간",
+      "rarity": "gold"
+    },
+    "DA_PrismaticDestiny": {
+      "name": "프리즘 운명",
+      "rarity": "prismatic"
+    },
+    "DA_PrismaticDestinyPlus": {
+      "name": "프리즘 운명+",
+      "rarity": "prismatic"
+    },
+    "DA_PrismaticTicket": {
+      "name": "프리즘 티켓",
+      "rarity": "prismatic"
+    },
+    "DA_PromisedProtection": {
+      "name": "약속된 보호",
+      "rarity": "gold"
+    },
+    "DA_QuickStreaks": {
+      "name": "빠른 연승 및 연패",
+      "rarity": "silver"
+    },
+    "DA_RadiantRascal": {
+      "name": "찬란한 장난꾸러기",
+      "rarity": "prismatic"
+    },
+    "DA_RadiantRelic": {
+      "name": "찬란한 유물",
+      "rarity": "prismatic"
+    },
+    "DA_Recombobulator": {
+      "name": "대격변 생성기",
+      "rarity": "silver"
+    },
+    "DA_Replication": {
+      "name": "복제",
+      "rarity": "gold"
+    },
+    "DA_Retribution": {
+      "name": "응징",
+      "rarity": "prismatic"
+    },
+    "DA_RollingForDays": {
+      "name": "새로고침의 날",
+      "rarity": "silver"
+    },
+    "DA_SalvageBin": {
+      "name": "재활용 쓰레기통",
+      "rarity": "gold"
+    },
+    "DA_SalvageBinPlus": {
+      "name": "재활용 쓰레기통+",
+      "rarity": "gold"
+    },
+    "DA_SeraphimsStaff": {
+      "name": "고위천사의 지팡이",
+      "rarity": "gold"
+    },
+    "DA_ShimmerscaleEssence": {
+      "name": "빛비늘 정수",
+      "rarity": "prismatic"
+    },
+    "DA_ShoppingSpree": {
+      "name": "흥청망청",
+      "rarity": "prismatic"
+    },
+    "DA_SilverDestiny": {
+      "name": "은빛 운명",
+      "rarity": "silver"
+    },
+    "DA_SilverDestinyPlus": {
+      "name": "은빛 운명+",
+      "rarity": "silver"
+    },
+    "DA_SilverDestinyPlusPlus": {
+      "name": "은빛 운명++",
+      "rarity": "silver"
+    },
+    "DA_SilverSpoon": {
+      "name": "은수저",
+      "rarity": "silver"
+    },
+    "DA_Slammin": {
+      "name": "재빠른 무장",
+      "rarity": "gold"
+    },
+    "DA_SlamminPlus": {
+      "name": "재빠른 무장+",
+      "rarity": "gold"
+    },
+    "DA_SliceOfLife": {
+      "name": "일상물",
+      "rarity": "silver"
+    },
+    "DA_SlightlyMagicRoll": {
+      "name": "약간 신비한 주사위",
+      "rarity": "silver"
+    },
+    "DA_SmallGrabBag": {
+      "name": "작은 꾸러미",
+      "rarity": "silver"
+    },
+    "DA_SoloLeveling": {
+      "name": "나 혼자 레벨업",
+      "rarity": "gold"
+    },
+    "DA_SoloPlate": {
+      "name": "고독한 방패",
+      "rarity": "gold"
+    },
+    "DA_SoulAwakening": {
+      "name": "영혼 각성",
+      "rarity": "prismatic"
+    },
+    "DA_SpeedyDoubleKill": {
+      "name": "재빠른 더블 킬",
+      "rarity": "gold"
+    },
+    "DA_SpiritOfRedemption": {
+      "name": "구원의 영혼",
+      "rarity": "gold"
+    },
+    "DA_SpreadingRoots": {
+      "name": "뻗어가는 뿌리",
+      "rarity": "gold"
+    },
+    "DA_SpreadingRootsPlus": {
+      "name": "뻗어가는 뿌리+",
+      "rarity": "gold"
+    },
+    "DA_Staffsmith": {
+      "name": "지팡이 제작자",
+      "rarity": "gold"
+    },
+    "DA_StandUnited": {
+      "name": "단결된 의지",
+      "rarity": "silver"
+    },
+    "DA_SweetTreats": {
+      "name": "달콤한 간식",
+      "rarity": "prismatic"
+    },
+    "DA_SwordOverflow": {
+      "name": "넘치는 대검",
+      "rarity": "prismatic"
+    },
+    "DA_Swordsmith": {
+      "name": "검 제작자",
+      "rarity": "gold"
+    },
+    "DA_TacticiansKitchen": {
+      "name": "전략가의 주방",
+      "rarity": "prismatic"
+    },
+    "DA_TeamBuilding": {
+      "name": "끈끈한 우정",
+      "rarity": "silver"
+    },
+    "DA_TheGoldenDragon": {
+      "name": "황금 드래곤",
+      "rarity": "gold"
+    },
+    "DA_TheTower": {
+      "name": "탑",
+      "rarity": "silver"
+    },
+    "DA_TheTraitTree": {
+      "name": "특성 나무",
+      "rarity": "prismatic"
+    },
+    "DA_TheTraitTreePlus": {
+      "name": "특성 나무+",
+      "rarity": "prismatic"
+    },
+    "DA_TimeSkip": {
+      "name": "시간 건너뛰기",
+      "rarity": "gold"
+    },
+    "DA_TonsOfStatsI": {
+      "name": "엄청나게 이로운 효과!",
+      "rarity": "gold"
+    },
+    "DA_TonsOfStatsII": {
+      "name": "엄청나게 이로운 효과!",
+      "rarity": "gold"
+    },
+    "DA_TradeSector": {
+      "name": "교환의 장",
+      "rarity": "gold"
+    },
+    "DA_TradeSectorPlus": {
+      "name": "교환의 장+",
+      "rarity": "gold"
+    },
+    "DA_TraitLadder": {
+      "name": "특성 사다리",
+      "rarity": "prismatic"
+    },
+    "DA_TwinGuardians": {
+      "name": "쌍둥이 수호자",
+      "rarity": "silver"
+    },
+    "DA_URF": {
+      "name": "U.R.F",
+      "rarity": "gold"
+    },
+    "DA_UpwardMobility": {
+      "name": "출세가도",
+      "rarity": "prismatic"
+    },
+    "DA_UrfsGrabBag": {
+      "name": "우르프의 꾸러미",
+      "rarity": "prismatic"
+    },
+    "DA_VerticalityI": {
+      "name": "고단수 I",
+      "rarity": "silver"
+    },
+    "DA_VerticalityII": {
+      "name": "고단수 II",
+      "rarity": "gold"
+    },
+    "DA_VerticalityIII": {
+      "name": "고단수 III",
+      "rarity": "prismatic"
+    },
+    "DA_WandOverflow": {
+      "name": "넘치는 지팡이",
+      "rarity": "prismatic"
+    },
+    "DA_Warpath": {
+      "name": "출정",
+      "rarity": "gold"
+    },
+    "DA_WeStickTogether": {
+      "name": "하나로 뭉치는 거지",
+      "rarity": "prismatic"
+    },
+    "DA_WorththeWait": {
+      "name": "기다림의 미학",
+      "rarity": "gold"
+    },
+    "DA_WorththeWaitII": {
+      "name": "기다림의 미학 II",
+      "rarity": "prismatic"
+    },
+    "DA_WovenMagic": {
+      "name": "얽힌 마법",
+      "rarity": "gold"
+    },
+    "DA_YoungAndWildAndFree": {
+      "name": "젊음, 광란, 자유",
+      "rarity": "silver"
+    },
+    "DA_ExpectedUnexpectedness": {
+      "name": "예상된 예상 밖의 결과",
+      "rarity": "prismatic"
+    }
+  }
 }
