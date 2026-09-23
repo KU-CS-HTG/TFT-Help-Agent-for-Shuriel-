@@ -28,6 +28,13 @@ export interface IngestResult {
   fetchedAt: string;
   augments: ParsedAugment[];
   warnings: string[];
+  /** augments가 0개일 때만 채워지는 진단 정보 (실제 CDragon 응답 구조 파악용) */
+  debug?: {
+    topLevelKeys: string[];
+    setCount: number;
+    sets: Array<{ number: unknown; mutator: unknown; keys: string[] }>;
+    firstMatchingSetKeys?: string[];
+  };
 }
 
 function stripHtmlTags(input: string): string {
@@ -107,27 +114,65 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
   const data = (await res.json()) as Record<string, unknown>;
 
   const setDataArray = (data.setData ?? data.sets ?? []) as Array<Record<string, unknown>>;
-  const matchingSets = setDataArray.filter((s) => {
+
+  // 세트 번호를 여러 후보 필드에서 시도 (버전마다 위치가 다를 수 있음)
+  function readSetNumber(s: Record<string, unknown>): number | null {
     const mutator = typeof s.mutator === "string" ? s.mutator : "";
-    const num = s.number ?? mutator.match(/\d+/)?.[0];
-    return Number(num) === setNumber;
-  });
+    const candidates = [s.number, s.set, mutator.match(/\d+/)?.[0]];
+    for (const c of candidates) {
+      const n = Number(c);
+      if (Number.isFinite(n) && n > 0) return n;
+    }
+    return null;
+  }
+
+  const matchingSets = setDataArray.filter((s) => readSetNumber(s) === setNumber);
+
+  let debug: IngestResult["debug"] | undefined;
 
   if (matchingSets.length === 0) {
     warnings.push(
       `setData 안에서 number=${setNumber} 인 세트를 찾지 못했습니다 (전체 세트 개수: ${setDataArray.length}). ` +
         `data.setData[*].number 필드명이 바뀌었을 수 있으니 응답 구조를 확인하세요.`
     );
+    debug = {
+      topLevelKeys: Object.keys(data),
+      setCount: setDataArray.length,
+      sets: setDataArray.map((s) => ({
+        number: s.number,
+        mutator: s.mutator,
+        keys: Object.keys(s),
+      })),
+    };
   }
 
   const rawAugments = new Map<string, Record<string, unknown>>();
   for (const set of matchingSets) {
-    const list = (set.augments ?? set.augmentsList ?? []) as Array<Record<string, unknown>>;
+    const list = (set.augments ?? set.augmentsList ?? set.augmentList ?? []) as Array<
+      Record<string, unknown>
+    >;
     for (const aug of list) {
       const apiName = aug?.apiName;
       if (typeof apiName !== "string") continue;
       rawAugments.set(apiName, aug);
     }
+  }
+
+  if (matchingSets.length > 0 && rawAugments.size === 0) {
+    warnings.push(
+      `number=${setNumber} 세트는 찾았지만 그 안에서 증강체 목록을 찾지 못했습니다. ` +
+        `set.augments / set.augmentsList 필드명이 다를 수 있습니다.`
+    );
+    debug = {
+      topLevelKeys: Object.keys(data),
+      setCount: setDataArray.length,
+      sets: setDataArray.map((s) => ({
+        number: s.number,
+        mutator: s.mutator,
+        keys: Object.keys(s),
+      })),
+      firstMatchingSetKeys: Object.keys(matchingSets[0]),
+    };
   }
 
   // setData 경로로 못 찾으면 최상위 augments 배열도 시도 (CDragon 버전별 대응)
@@ -137,7 +182,10 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
       if (typeof apiName !== "string") continue;
       rawAugments.set(apiName, aug);
     }
-    warnings.push("setData에서 못 찾아 최상위 augments 배열을 대신 사용했습니다 (세트 필터링 미적용).");
+    if (rawAugments.size > 0) {
+      warnings.push("setData에서 못 찾아 최상위 augments 배열을 대신 사용했습니다 (세트 필터링 미적용).");
+      debug = undefined;
+    }
   }
 
   const parsed: ParsedAugment[] = [];
@@ -165,6 +213,7 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
     fetchedAt: new Date().toISOString(),
     augments: parsed,
     warnings,
+    debug,
   };
 }
 
