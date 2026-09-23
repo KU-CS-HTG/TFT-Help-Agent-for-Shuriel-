@@ -5,19 +5,14 @@ import { getSupabaseServerClient } from "@/lib/supabase";
 import { STAGES, type Stage } from "@/lib/constants";
 import type { Augment } from "@/lib/types";
 
-export async function updateExtraStagesAction(
-  augmentId: string,
-  primaryStage: Stage,
-  extraStages: Stage[]
-): Promise<Augment> {
+export async function updateStagesAction(augmentId: string, stages: Stage[]): Promise<Augment> {
   const supabase = getSupabaseServerClient();
 
-  // 기본 스테이지는 extra_stages에 중복으로 넣지 않는다.
-  const cleaned = [...new Set(extraStages)].filter((s) => s !== primaryStage);
+  const cleaned = [...new Set(stages)];
 
   const { data, error } = await supabase
     .from("augments")
-    .update({ extra_stages: cleaned })
+    .update({ stages: cleaned })
     .eq("id", augmentId)
     .select()
     .single();

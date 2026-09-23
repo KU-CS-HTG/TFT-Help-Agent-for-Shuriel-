@@ -8,7 +8,7 @@ import { STAGES, type Stage } from "@/lib/constants";
 import { updateNoteAction } from "@/lib/actions/noteActions";
 import { updateGameDescriptionAction } from "@/lib/actions/descriptionActions";
 import { addImagesAction, deleteImageAction } from "@/lib/actions/imageActions";
-import { updateExtraStagesAction } from "@/lib/actions/stageMembershipActions";
+import { updateStagesAction } from "@/lib/actions/stageMembershipActions";
 
 interface Props {
   augment: AugmentWithExtras;
@@ -55,14 +55,12 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
     });
   }
 
-  function toggleExtraStage(target: Stage, checked: boolean) {
+  function toggleStage(target: Stage, checked: boolean) {
     setError(null);
-    const nextExtraStages = checked
-      ? [...augment.extra_stages, target]
-      : augment.extra_stages.filter((s) => s !== target);
+    const nextStages = checked ? [...augment.stages, target] : augment.stages.filter((s) => s !== target);
     startTransition(async () => {
       try {
-        const updated = await updateExtraStagesAction(augment.id, augment.stage, nextExtraStages);
+        const updated = await updateStagesAction(augment.id, nextStages);
         onUpdate({ ...augment, ...updated });
       } catch (err) {
         setError(err instanceof Error ? err.message : "저장 실패");
@@ -158,27 +156,23 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
         </div>
 
         <div className="mb-4 rounded-lg bg-neutral-950 p-3">
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-600">등장 스테이지</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-600">
+            등장 스테이지
+            {augment.stages.length === 0 && <span className="ml-2 normal-case text-neutral-600">(미확인)</span>}
+          </p>
           <div className="flex flex-wrap gap-3">
             {STAGES.map((s) => {
-              const isPrimary = s === augment.stage;
-              const checked = isPrimary || augment.extra_stages.includes(s);
+              const checked = augment.stages.includes(s);
               return (
-                <label
-                  key={s}
-                  className={`flex items-center gap-1.5 text-xs ${
-                    isPrimary ? "text-neutral-500" : "text-neutral-300"
-                  }`}
-                >
+                <label key={s} className="flex items-center gap-1.5 text-xs text-neutral-300">
                   <input
                     type="checkbox"
                     checked={checked}
-                    disabled={isPrimary || pending}
-                    onChange={(e) => toggleExtraStage(s, e.target.checked)}
+                    disabled={pending}
+                    onChange={(e) => toggleStage(s, e.target.checked)}
                     className="h-3.5 w-3.5 accent-indigo-500 disabled:opacity-60"
                   />
                   {s}
-                  {isPrimary && <span className="text-[10px] text-neutral-600">(기본)</span>}
                 </label>
               );
             })}

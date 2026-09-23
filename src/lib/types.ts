@@ -13,9 +13,11 @@ export type Augment = {
   description_game_overridden: boolean;
   icon_url: string | null;
   rarity: Rarity;
+  /** 등급 기준 기본 배정 스테이지 (ingest가 채움, 화면 노출 여부와는 무관 — stages 참고) */
   stage: Stage;
-  /** stage 외에 추가로 등장하는 스테이지 (사용자가 직접 관리, 새로고침이 건드리지 않음) */
-  extra_stages: Stage[];
+  /** 이 증강체가 실제로 등장하는 스테이지 전부. 전부 비어있을 수도 있음(아직 미확인).
+   * 사용자가 체크박스로 직접 관리하며, 새로고침이 절대 건드리지 않음. */
+  stages: Stage[];
   set_number: number;
   patch_version: string;
   created_at: string;
