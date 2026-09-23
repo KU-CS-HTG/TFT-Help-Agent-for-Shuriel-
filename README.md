@@ -12,7 +12,7 @@ Supabase에 데이터를 저장해 PC/모바일 등 여러 기기에서 같은 �
 - Next.js 16 (App Router, Server Actions) + TypeScript + Tailwind CSS
 - dnd-kit (드래그앤드롭 티어보드)
 - Supabase (Postgres + Storage, 이미지 업로드)
-- 단일 비밀번호 기반 세션 인증
+- 로그인 없음 (개인용 전제, 필요 시 배포 플랫폼의 접근 제어 사용 — [SETUP.md](./SETUP.md) 참고)
 
 ## 주요 스크립트
 

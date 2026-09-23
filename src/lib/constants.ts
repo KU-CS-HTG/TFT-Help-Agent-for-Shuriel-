@@ -33,5 +33,3 @@ export const TIER_COLOR: Record<Tier, string> = {
 
 export const CURRENT_SET_NUMBER = 18;
 export const CURRENT_PATCH_VERSION = "18.2b";
-
-export const SESSION_COOKIE_NAME = "tft_session";
