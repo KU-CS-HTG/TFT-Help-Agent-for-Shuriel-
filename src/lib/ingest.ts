@@ -7,7 +7,7 @@
 // 응답으로 검증하지 못했습니다. 필드명이 다르면 guessRarity() 근처의
 // 후보 목록을 조정하세요. 자세한 내용은 SETUP.md 참고.
 
-import { CURRENT_SET_NUMBER, RARITY_TO_STAGE, type Rarity } from "./constants";
+import { CURRENT_SET_NUMBER, RARITY_TO_STAGE, isRarity, type Rarity } from "./constants";
 import type { getSupabaseServerClient } from "./supabase";
 
 const CDRAGON_JSON_URL = "https://raw.communitydragon.org/latest/cdragon/tft/ko_kr.json";
@@ -110,7 +110,11 @@ export async function fetchLatestPatchVersion(): Promise<string> {
 
 export async function fetchAndParseAugments(options?: {
   setNumber?: number;
-  rarityOverrides?: Record<string, Rarity>;
+  // 값 타입을 일부러 string으로 느슨하게 받습니다: data/rarity-overrides.json은
+  // 사람이 직접 타이핑하는 파일이라 오타/대소문자/공백이 섞일 수 있고, 실제로
+  // 그 값이 그대로 DB의 not-null stage 컬럼까지 흘러들어가 upsert 전체가
+  // 실패한 적이 있습니다. 아래에서 isRarity()로 검증한 값만 사용합니다.
+  rarityOverrides?: Record<string, string>;
 }): Promise<IngestResult> {
   const setNumber = options?.setNumber ?? CURRENT_SET_NUMBER;
   const rarityOverrides = options?.rarityOverrides ?? {};
@@ -258,7 +262,13 @@ export async function fetchAndParseAugments(options?: {
   for (const raw of rawAugments.values()) {
     const apiName = raw.apiName as string;
     const name = typeof raw.name === "string" ? raw.name : apiName;
-    const rarity = guessRarity(raw) ?? rarityOverrides[apiName] ?? null;
+    const overrideValue = rarityOverrides[apiName];
+    if (overrideValue !== undefined && !isRarity(overrideValue)) {
+      warnings.push(
+        `data/rarity-overrides.json의 "${apiName}" 값("${overrideValue}")이 silver/gold/prism 중 하나가 아니라 무시합니다.`
+      );
+    }
+    const rarity = guessRarity(raw) ?? (isRarity(overrideValue) ? overrideValue : null);
 
     if (!rarity) {
       warnings.push(`등급을 판별할 수 없어 건너뜀: ${apiName}`);
@@ -351,20 +361,36 @@ export async function upsertAugments(
     }
   }
 
-  const rows = withIcons.map(({ augment, iconUrl }) => ({
-    api_name: augment.apiName,
-    name: augment.name,
-    description_game: overriddenDescriptions.get(augment.apiName) ?? augment.descriptionGame,
-    icon_url: iconUrl,
-    rarity: augment.rarity,
-    stage: RARITY_TO_STAGE[augment.rarity],
-    set_number: result.setNumber,
-    patch_version: result.patchVersion,
-  }));
-
   const warnings = [...result.warnings];
+
+  // 방어적 재검증: augment.rarity가 어떤 경로로든 silver/gold/prism이
+  // 아닌 값이 되면 RARITY_TO_STAGE[...]가 undefined가 되고, 그 값이 그대로
+  // DB의 not-null stage 컬럼에 들어가 upsert 전체가 실패한다(실제 발생).
+  // 여기서 걸러서 그 행만 건너뛰고 나머지는 정상 처리되게 한다.
+  const rows = withIcons.flatMap(({ augment, iconUrl }) => {
+    const stage = RARITY_TO_STAGE[augment.rarity];
+    if (!stage) {
+      warnings.push(`알 수 없는 등급("${augment.rarity}")이라 DB에 저장하지 않고 건너뜀: ${augment.apiName}`);
+      return [];
+    }
+    return [
+      {
+        api_name: augment.apiName,
+        name: augment.name,
+        description_game: overriddenDescriptions.get(augment.apiName) ?? augment.descriptionGame,
+        icon_url: iconUrl,
+        rarity: augment.rarity,
+        stage,
+        set_number: result.setNumber,
+        patch_version: result.patchVersion,
+      },
+    ];
+  });
+
+  const keptApiNames = new Set(rows.map((r) => r.api_name));
   let iconsMissing = 0;
   for (const { augment, iconUrl } of withIcons) {
+    if (!keptApiNames.has(augment.apiName)) continue;
     if (!iconUrl) {
       iconsMissing += 1;
       warnings.push(`아이콘 URL을 찾지 못함: ${augment.apiName} (icon="${augment.iconPath}")`);
