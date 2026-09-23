@@ -63,7 +63,7 @@
     },
     "DA_18_LuxAugmentII": {
       "name": "계열의 대가",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_18_OneTwoFive": {
       "name": "하나, 둘, 다섯!",
@@ -163,27 +163,27 @@
     },
     "DA_BandOfThievesII": {
       "name": "도둑 무리 II",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_BandOfThievesIIPlus": {
       "name": "도둑 무리 II+",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_BandOfThievesIIPlusPlus": {
       "name": "도둑 무리 II++",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_BaronsLair": {
       "name": "남작의 소굴",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_BeltOverflow": {
       "name": "넘치는 허리띠",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_BirthdayPresent": {
       "name": "생일 선물",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_BirthdayReunion": {
       "name": "생일 모임",
@@ -227,19 +227,19 @@
     },
     "DA_BronzeForLifeII": {
       "name": "영원한 브론즈 II",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_BuildABud": {
       "name": "친구 만들기",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_BuriedTreasuresIII": {
       "name": "파묻힌 보물 III",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_CallToChaos": {
       "name": "혼돈의 부름",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_CalledShot": {
       "name": "결과 예측",
@@ -271,11 +271,11 @@
     },
     "DA_CelestialBlessingIII": {
       "name": "천상의 축복 III",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_ChallengersGrace": {
       "name": "도전자의 은총",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_ChampDelivery": {
       "name": "챔피언 배달",
@@ -315,11 +315,11 @@
     },
     "DA_ComebackStory": {
       "name": "역전의 서막",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_CommerceCore": {
       "name": "거래 중심지",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_ComponentBuffet": {
       "name": "입맛대로 고르는 부품",
@@ -327,7 +327,7 @@
     },
     "DA_ComponentQuest": {
       "name": "조합 아이템 퀘스트",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_CookingPot": {
       "name": "요리용 냄비",
@@ -335,7 +335,7 @@
     },
     "DA_Coronation": {
       "name": "대관식",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_Corrosion": {
       "name": "부식",
@@ -351,7 +351,7 @@
     },
     "DA_CursedCrown": {
       "name": "저주받은 왕관",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_CyberneticImplants_Gold": {
       "name": "사이버네틱 이식술",
@@ -363,11 +363,11 @@
     },
     "DA_DeadlierBlades": {
       "name": "치명적인 칼날",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_DeadlierCaps": {
       "name": "더욱 치명적인 모자",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_Dummify": {
       "name": "훈련 봇 변환",
@@ -427,7 +427,7 @@
     },
     "DA_Flexible": {
       "name": "유연함",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_FlowingTears": {
       "name": "흐르는 눈물",
@@ -439,7 +439,7 @@
     },
     "DA_ForgedInStrength": {
       "name": "힘을 실은 제련",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_FrontlineFoundation": {
       "name": "전방의 토대",
@@ -455,7 +455,7 @@
     },
     "DA_GiantAndMighty": {
       "name": "거대하고 강력한",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_GildedSteel": {
       "name": "도금 강철",
@@ -471,7 +471,7 @@
     },
     "DA_GoingLong": {
       "name": "장기 투자",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_GoldDestiny": {
       "name": "금빛 운명",
@@ -483,19 +483,19 @@
     },
     "DA_GoldenEgg": {
       "name": "황금 알",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_GoldenGamble": {
       "name": "경품 추첨",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_GoldenGamblePlus": {
       "name": "경품 추첨+",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_GoldenGamblePlusPlus": {
       "name": "경품 추첨++",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_GroupHugI": {
       "name": "단체 포옹 I",
@@ -511,7 +511,7 @@
     },
     "DA_HardCommit": {
       "name": "극진한 헌신",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_HealingOrbsI": {
       "name": "회복의 구 I",
@@ -527,7 +527,7 @@
     },
     "DA_HedgeFund": {
       "name": "헤지 펀드",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_HeroicGrabBag": {
       "name": "영웅 꾸러미",
@@ -543,7 +543,7 @@
     },
     "DA_HoldTheLine": {
       "name": "진형 유지",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_Hustler": {
       "name": "수완가",
@@ -555,15 +555,15 @@
     },
     "DA_InvestedPlus": {
       "name": "투자+",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_InvestedPlusPlus": {
       "name": "투자++",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_InvestmentStrategy": {
       "name": "투자 전략 II",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_InvestmentStrategyI": {
       "name": "투자 전략 I",
@@ -587,7 +587,7 @@
     },
     "DA_JeweledLotus_II": {
       "name": "보석 연꽃 II",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_KickStart": {
       "name": "시동 걸기",
@@ -619,11 +619,11 @@
     },
     "DA_LevelUp": {
       "name": "레벨 업!",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_LivingForge": {
       "name": "간이 대장간",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_LoadedDice": {
       "name": "사기 주사위",
@@ -631,15 +631,15 @@
     },
     "DA_LuckyGloves": {
       "name": "행운의 장갑",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_LuckyGlovesPlus": {
       "name": "행운의 장갑+",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_LuxurySubscription": {
       "name": "호화로운 정기 구독",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_MagicRoll": {
       "name": "마법 주사위",
@@ -663,7 +663,7 @@
     },
     "DA_Min_Max": {
       "name": "최적화",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_MissedConnections": {
       "name": "연결 불가",
@@ -679,23 +679,23 @@
     },
     "DA_MoneyMonsoon": {
       "name": "돈 폭풍",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_NestingAnvils": {
       "name": "마트료시카 모루",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_NestingAnvilsPlus": {
       "name": "마트료시카 모루+",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_NestingDollsPlus": {
       "name": "마트료시카",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_NestingDollsPlusPlus": {
       "name": "마트료시카",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_NoScoutNoPivot": {
       "name": "단일 조합 사수",
@@ -703,7 +703,7 @@
     },
     "DA_OneBuffTwoBuff": {
       "name": "붉고 푸른 효과",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_PandorasBench": {
       "name": "판도라의 대기석",
@@ -719,7 +719,7 @@
     },
     "DA_PandorasItemsIII": {
       "name": "판도라의 아이템 III",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_PartialAscension": {
       "name": "불완전한 초월",
@@ -745,17 +745,17 @@
       "name": "휴대용 대장간",
       "rarity": "gold"
     },
-    "DA_PrismaticDestiny": {
+    "DA_prismDestiny": {
       "name": "프리즘 운명",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
-    "DA_PrismaticDestinyPlus": {
+    "DA_prismDestinyPlus": {
       "name": "프리즘 운명+",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
-    "DA_PrismaticTicket": {
+    "DA_prismTicket": {
       "name": "프리즘 티켓",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_PromisedProtection": {
       "name": "약속된 보호",
@@ -767,11 +767,11 @@
     },
     "DA_RadiantRascal": {
       "name": "찬란한 장난꾸러기",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_RadiantRelic": {
       "name": "찬란한 유물",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_Recombobulator": {
       "name": "대격변 생성기",
@@ -783,7 +783,7 @@
     },
     "DA_Retribution": {
       "name": "응징",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_RollingForDays": {
       "name": "새로고침의 날",
@@ -803,11 +803,11 @@
     },
     "DA_ShimmerscaleEssence": {
       "name": "빛비늘 정수",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_ShoppingSpree": {
       "name": "흥청망청",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_SilverDestiny": {
       "name": "은빛 운명",
@@ -855,7 +855,7 @@
     },
     "DA_SoulAwakening": {
       "name": "영혼 각성",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_SpeedyDoubleKill": {
       "name": "재빠른 더블 킬",
@@ -883,11 +883,11 @@
     },
     "DA_SweetTreats": {
       "name": "달콤한 간식",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_SwordOverflow": {
       "name": "넘치는 대검",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_Swordsmith": {
       "name": "검 제작자",
@@ -895,7 +895,7 @@
     },
     "DA_TacticiansKitchen": {
       "name": "전략가의 주방",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_TeamBuilding": {
       "name": "끈끈한 우정",
@@ -911,11 +911,11 @@
     },
     "DA_TheTraitTree": {
       "name": "특성 나무",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_TheTraitTreePlus": {
       "name": "특성 나무+",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_TimeSkip": {
       "name": "시간 건너뛰기",
@@ -939,7 +939,7 @@
     },
     "DA_TraitLadder": {
       "name": "특성 사다리",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_TwinGuardians": {
       "name": "쌍둥이 수호자",
@@ -951,11 +951,11 @@
     },
     "DA_UpwardMobility": {
       "name": "출세가도",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_UrfsGrabBag": {
       "name": "우르프의 꾸러미",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_VerticalityI": {
       "name": "고단수 I",
@@ -967,11 +967,11 @@
     },
     "DA_VerticalityIII": {
       "name": "고단수 III",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_WandOverflow": {
       "name": "넘치는 지팡이",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_Warpath": {
       "name": "출정",
@@ -979,7 +979,7 @@
     },
     "DA_WeStickTogether": {
       "name": "하나로 뭉치는 거지",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_WorththeWait": {
       "name": "기다림의 미학",
@@ -987,7 +987,7 @@
     },
     "DA_WorththeWaitII": {
       "name": "기다림의 미학 II",
-      "rarity": "prismatic"
+      "rarity": "prism"
     },
     "DA_WovenMagic": {
       "name": "얽힌 마법",
@@ -999,7 +999,23 @@
     },
     "DA_ExpectedUnexpectedness": {
       "name": "예상된 예상 밖의 결과",
-      "rarity": "prismatic"
+      "rarity": "prism"
+    },
+    "DA_18_InfernoTraitAugment": {
+      "name": "화염 점화",
+      "rarity": null
+    },
+    "DA_PrismaticDestiny": {
+      "name": "프리즘 운명",
+      "rarity": null
+    },
+    "DA_PrismaticDestinyPlus": {
+      "name": "프리즘 운명+",
+      "rarity": null
+    },
+    "DA_PrismaticTicket": {
+      "name": "프리즘 티켓",
+      "rarity": null
     }
   }
 }
