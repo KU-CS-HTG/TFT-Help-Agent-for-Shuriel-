@@ -28,6 +28,8 @@ export interface IngestResult {
   fetchedAt: string;
   augments: ParsedAugment[];
   warnings: string[];
+  /** 등급을 못 찾아 제외된 증강체 (data/rarity-overrides.json에 직접 채워 넣을 수 있도록) */
+  unresolvedForOverride: Array<{ apiName: string; name: string }>;
   /** augments가 0개일 때만 채워지는 진단 정보 (실제 CDragon 응답 구조 파악용) */
   debug?: {
     topLevelKeys: string[];
@@ -49,7 +51,13 @@ function stripHtmlTags(input: string): string {
   return input.replace(/<[^>]*>/g, "").trim();
 }
 
-// CDragon 필드명은 패치/버전마다 조금씩 달라질 수 있어 여러 후보를 순서대로 시도합니다.
+// CDragon ko_kr.json의 augment 항목(data.items에서 찾아온 객체)에는 등급
+// (실버/골드/프리즘)을 나타내는 명시적 필드가 없는 것으로 실측 확인됨 —
+// apiName/icon에 "gold"/"silver" 같은 문자열이 들어있어도 그건 아이콘
+// 이름일 뿐 등급과 무관함(예: "golden-gifts-iii.tex" 아이콘은 실제로는
+// 등급 정보가 아니라 아이콘 테마 이름). 그래서 문자열 추측은 하지 않고,
+// (혹시 나중에 필드가 추가될 경우를 위해) 명시적 tier/rarity 필드만 확인한
+// 뒤, 없으면 rarityOverrides(사람이 직접 채운 값)로 넘어갑니다.
 function guessRarity(raw: Record<string, unknown>): Rarity | null {
   const tierField = raw.tier ?? raw.rarity ?? raw.augmentTier;
 
@@ -61,21 +69,10 @@ function guessRarity(raw: Record<string, unknown>): Rarity | null {
 
   if (typeof tierField === "string") {
     const lower = tierField.toLowerCase();
-    if (lower.includes("silver") || lower === "1") return "silver";
-    if (lower.includes("gold") || lower === "2") return "gold";
-    if (lower.includes("prism") || lower === "3") return "prism";
+    if (lower === "silver" || lower === "1") return "silver";
+    if (lower === "gold" || lower === "2") return "gold";
+    if (lower === "prism" || lower === "prismatic" || lower === "3") return "prism";
   }
-
-  const apiName = typeof raw.apiName === "string" ? raw.apiName : "";
-  const icon = typeof raw.icon === "string" ? raw.icon : "";
-  const haystack = `${apiName} ${icon}`.toLowerCase();
-
-  if (haystack.includes("prismatic") || haystack.includes("prism")) return "prism";
-  if (haystack.includes("gold")) return "gold";
-  if (haystack.includes("silver")) return "silver";
-  if (haystack.includes("tier3")) return "prism";
-  if (haystack.includes("tier2")) return "gold";
-  if (haystack.includes("tier1")) return "silver";
 
   return null;
 }
@@ -111,8 +108,12 @@ export async function fetchLatestPatchVersion(): Promise<string> {
   }
 }
 
-export async function fetchAndParseAugments(options?: { setNumber?: number }): Promise<IngestResult> {
+export async function fetchAndParseAugments(options?: {
+  setNumber?: number;
+  rarityOverrides?: Record<string, Rarity>;
+}): Promise<IngestResult> {
   const setNumber = options?.setNumber ?? CURRENT_SET_NUMBER;
+  const rarityOverrides = options?.rarityOverrides ?? {};
   const warnings: string[] = [];
 
   const res = await fetch(CDRAGON_JSON_URL);
@@ -252,14 +253,18 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
   }
 
   const parsed: ParsedAugment[] = [];
+  const unresolvedForOverride: Array<{ apiName: string; name: string }> = [];
   let rarityUnresolvedSample: { apiName: string; raw: unknown } | undefined;
   let raritySuccessSample: { apiName: string; raw: unknown; rarity: Rarity } | undefined;
 
   for (const raw of rawAugments.values()) {
-    const rarity = guessRarity(raw);
     const apiName = raw.apiName as string;
+    const name = typeof raw.name === "string" ? raw.name : apiName;
+    const rarity = guessRarity(raw) ?? rarityOverrides[apiName] ?? null;
+
     if (!rarity) {
       warnings.push(`등급을 판별할 수 없어 건너뜀: ${apiName}`);
+      unresolvedForOverride.push({ apiName, name });
       // 세트 18 고유(DA_18_) 항목을 우선 샘플로 잡는다 — 범용 접두사보다
       // "진짜 이번 세트 증강체인데 등급을 못 찾은" 사례가 더 유용하다.
       if (!rarityUnresolvedSample || apiName.startsWith(`DA_${setNumber}_`)) {
@@ -272,7 +277,7 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
     }
     parsed.push({
       apiName,
-      name: typeof raw.name === "string" ? raw.name : apiName,
+      name,
       descriptionGame: stripHtmlTags(typeof raw.desc === "string" ? raw.desc : ""),
       iconPath: typeof raw.icon === "string" ? raw.icon : "",
       rarity,
@@ -295,6 +300,7 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
     fetchedAt: new Date().toISOString(),
     augments: parsed,
     warnings,
+    unresolvedForOverride,
     debug,
   };
 }
@@ -329,10 +335,28 @@ export async function upsertAugments(
     return { augment, iconUrl };
   });
 
+  // 사용자가 "게임 내 설명"을 직접 수정한 증강체는 새로고침이 그 값을
+  // 덮어쓰면 안 된다. description_game_overridden=true인 행들의 현재
+  // description_game 값을 미리 읽어와서, 이번 upsert 페이로드에도 같은
+  // 값을 그대로 넣어 사실상 변경 없이 유지되게 한다.
+  const apiNames = withIcons.map(({ augment }) => augment.apiName);
+  const overriddenDescriptions = new Map<string, string>();
+  if (apiNames.length > 0) {
+    const { data: existing, error: existingError } = await supabase
+      .from("augments")
+      .select("api_name, description_game, description_game_overridden")
+      .in("api_name", apiNames);
+    if (existingError) throw new Error(existingError.message);
+    for (const row of existing ?? []) {
+      const r = row as { api_name: string; description_game: string; description_game_overridden: boolean };
+      if (r.description_game_overridden) overriddenDescriptions.set(r.api_name, r.description_game);
+    }
+  }
+
   const rows = withIcons.map(({ augment, iconUrl }) => ({
     api_name: augment.apiName,
     name: augment.name,
-    description_game: augment.descriptionGame,
+    description_game: overriddenDescriptions.get(augment.apiName) ?? augment.descriptionGame,
     icon_url: iconUrl,
     rarity: augment.rarity,
     stage: RARITY_TO_STAGE[augment.rarity],
