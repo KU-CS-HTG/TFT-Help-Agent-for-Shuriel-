@@ -1,4 +1,3 @@
-import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 
@@ -6,8 +5,11 @@ let cachedClient: ReturnType<typeof createClient<Database>> | null = null;
 
 /**
  * 개인용 단일 사용자 앱이므로 서버 사이드에서만 service_role 키로 DB에
- * 접근합니다. 이 파일은 "server-only"로 표시되어 있어 클라이언트 번들에
- * 실수로 포함되면 빌드가 실패합니다.
+ * 접근합니다. 이 파일 자체는 "server-only"를 쓰지 않습니다 — CLI 스크립트
+ * (scripts/*.ts)가 tsx로 이 파일을 직접 import하는데, "server-only"는
+ * Next.js 번들러를 거치지 않으면 항상 에러를 던지기 때문입니다. 대신
+ * 이 함수를 호출하는 Next.js 쪽 진입점(src/lib/data.ts, "use server" 액션들)
+ * 에서 서버 전용임을 보장합니다.
  */
 export function getSupabaseServerClient() {
   if (cachedClient) return cachedClient;
