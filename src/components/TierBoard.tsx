@@ -103,7 +103,7 @@ export default function TierBoard({ stage, initialAugments }: Props) {
     <div className="flex flex-1 flex-col gap-4 p-4">
       <SearchBar value={search} onChange={setSearch} />
 
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <DndContext id={`tier-board-${stage}`} sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="overflow-hidden rounded-xl border border-neutral-800">
           {TIERS.map((tier) => (
             <TierRow
