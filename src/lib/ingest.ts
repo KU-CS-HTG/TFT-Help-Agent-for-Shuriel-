@@ -39,6 +39,9 @@ export interface IngestResult {
     itemsArrayLength?: number;
     firstReferencedApiName?: string | null;
     firstItemSample?: unknown;
+    excludedOtherSetCount?: number;
+    rarityUnresolvedSample?: { apiName: string; raw: unknown };
+    raritySuccessSample?: { apiName: string; raw: unknown; rarity: Rarity };
   };
 }
 
@@ -178,6 +181,27 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
     }
   }
 
+  // TFTSet18의 augments 목록에는 다른 세트 전용 증강체(TFT6_Augment_*,
+  // TFT9_Augment_Commander_* 등)나 특별 모드용 증강체(DA_URF 등)가 함께
+  // 섞여 나온다(실측: 592개 중 45개만 등급 판별 성공, 나머지 대부분이
+  // TFT6~TFT17 접두사). apiName 자체에 다른 세트 번호가 명시된 경우만
+  // 확실하게 걸러낸다 — 세트 번호가 없는 범용 접두사(DA_*, TFT_Augment_*)는
+  // 이 패치의 Set 18 도전 과제/모드 전용일 수도, 여전히 활성화된 범용
+  // 증강체일 수도 있어 이 휴리스틱만으로는 완벽히 가려낼 수 없다.
+  let excludedOtherSetCount = 0;
+  for (const apiName of [...referencedApiNames]) {
+    const otherSetMatch = apiName.match(/^TFT(\d+)_/i);
+    if (otherSetMatch && Number(otherSetMatch[1]) !== setNumber) {
+      referencedApiNames.delete(apiName);
+      excludedOtherSetCount += 1;
+    }
+  }
+  if (excludedOtherSetCount > 0) {
+    warnings.push(
+      `apiName에 다른 세트 번호가 명시된 증강체 ${excludedOtherSetCount}개를 제외했습니다 (예: TFT6_Augment_*, TFT9_Augment_* 등).`
+    );
+  }
+
   const itemsArray = Array.isArray(data.items) ? (data.items as Array<Record<string, unknown>>) : [];
   if (itemsArray.length > 0 && referencedApiNames.size > 0) {
     const itemsByApiName = new Map<string, Record<string, unknown>>();
@@ -210,6 +234,7 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
       itemsArrayLength: itemsArray.length,
       firstReferencedApiName: [...referencedApiNames][0] ?? null,
       firstItemSample: itemsArray[0] ?? null,
+      excludedOtherSetCount,
     };
   }
 
@@ -227,12 +252,23 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
   }
 
   const parsed: ParsedAugment[] = [];
+  let rarityUnresolvedSample: { apiName: string; raw: unknown } | undefined;
+  let raritySuccessSample: { apiName: string; raw: unknown; rarity: Rarity } | undefined;
+
   for (const raw of rawAugments.values()) {
     const rarity = guessRarity(raw);
     const apiName = raw.apiName as string;
     if (!rarity) {
       warnings.push(`등급을 판별할 수 없어 건너뜀: ${apiName}`);
+      // 세트 18 고유(DA_18_) 항목을 우선 샘플로 잡는다 — 범용 접두사보다
+      // "진짜 이번 세트 증강체인데 등급을 못 찾은" 사례가 더 유용하다.
+      if (!rarityUnresolvedSample || apiName.startsWith(`DA_${setNumber}_`)) {
+        rarityUnresolvedSample = { apiName, raw };
+      }
       continue;
+    }
+    if (!raritySuccessSample) {
+      raritySuccessSample = { apiName, raw, rarity };
     }
     parsed.push({
       apiName,
@@ -241,6 +277,14 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
       iconPath: typeof raw.icon === "string" ? raw.icon : "",
       rarity,
     });
+  }
+
+  if (rarityUnresolvedSample || raritySuccessSample) {
+    debug = {
+      ...(debug ?? { topLevelKeys: Object.keys(data), setCount: setDataArray.length, sets: [] }),
+      rarityUnresolvedSample,
+      raritySuccessSample,
+    };
   }
 
   const patchVersion = await fetchLatestPatchVersion();

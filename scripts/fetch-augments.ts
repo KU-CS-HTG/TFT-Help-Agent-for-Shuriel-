@@ -21,21 +21,28 @@ async function main() {
   const result = await fetchAndParseAugments();
   console.log(`파싱된 증강체 수: ${result.augments.length} (패치 ${result.patchVersion})`);
 
-  if (result.warnings.length > 0) {
+  const rarityWarnings = result.warnings.filter((w) => w.startsWith("등급을 판별할 수 없어"));
+  const otherWarnings = result.warnings.filter((w) => !w.startsWith("등급을 판별할 수 없어"));
+
+  if (otherWarnings.length > 0) {
     console.warn("\n경고:");
-    for (const w of result.warnings) console.warn(`  - ${w}`);
+    for (const w of otherWarnings) console.warn(`  - ${w}`);
+  }
+  if (rarityWarnings.length > 0) {
+    console.warn(`\n등급 판별 실패로 제외된 증강체: ${rarityWarnings.length}개 (처음 10개만 표시)`);
+    for (const w of rarityWarnings.slice(0, 10)) console.warn(`  - ${w}`);
+  }
+
+  if (result.debug) {
+    console.error("\n--- 진단 정보 (이 블록 전체를 복사해서 알려주시면 파싱 로직을 고칠 수 있습니다) ---");
+    console.error(JSON.stringify(result.debug, null, 2));
+    console.error("--- 진단 정보 끝 ---");
   }
 
   if (result.augments.length === 0) {
     console.error("\n파싱된 증강체가 0개입니다. DB를 변경하지 않고 종료합니다.");
     console.error("data/sample-augments.json 을 기반으로 한 더미 데이터를 대신 사용하려면");
-    console.error("npm run seed:sample 을 실행하세요.\n");
-
-    if (result.debug) {
-      console.error("--- 진단 정보 (이 블록 전체를 복사해서 알려주시면 파싱 로직을 고칠 수 있습니다) ---");
-      console.error(JSON.stringify(result.debug, null, 2));
-      console.error("--- 진단 정보 끝 ---");
-    }
+    console.error("npm run seed:sample 을 실행하세요.");
     process.exit(1);
   }
 
