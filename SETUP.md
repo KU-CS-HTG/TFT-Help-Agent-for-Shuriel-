@@ -43,8 +43,6 @@ cp .env.example .env.local
 ```
 
 - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`: 위에서 확인한 값
-- `APP_PASSWORD`: 본인만 아는 로그인 비밀번호
-- `SESSION_SECRET`: 임의의 긴 문자열 (`openssl rand -hex 32` 등으로 생성)
 
 ## 3. 로컬 실행
 
@@ -53,8 +51,8 @@ npm install
 npm run dev
 ```
 
-브라우저에서 http://localhost:3000 접속 → `/login`으로 리다이렉트됩니다.
-`APP_PASSWORD`로 설정한 비밀번호를 입력하면 2-1 티어보드로 이동합니다.
+브라우저에서 http://localhost:3000 접속 → 바로 2-1 티어보드로 이동합니다.
+로그인 기능은 없습니다 (아래 8번 참고).
 
 ## 4. 증강체 데이터 채우기
 
@@ -84,11 +82,14 @@ npm run seed:sample
 ## 6. Vercel 배포
 
 1. GitHub 저장소를 Vercel에 연결합니다.
-2. 프로젝트 설정 > Environment Variables 에 `.env.local`과 동일한 4개 값
-   (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `APP_PASSWORD`, `SESSION_SECRET`)을
-   등록합니다.
-3. 배포 후 발급된 URL로 PC/모바일 어디서든 같은 비밀번호로 접속해 같은 데이터를
-   보고 수정할 수 있습니다.
+2. 프로젝트 설정 > Environment Variables 에 `.env.local`과 동일한 2개 값
+   (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`)을 등록합니다.
+3. 배포 후 발급된 URL로 PC/모바일 어디서든 접속해 같은 데이터를 보고 수정할 수
+   있습니다.
+
+> **주의**: 로그인 기능을 뺐기 때문에 이 URL을 아는 사람은 누구나 데이터를 보고
+> 수정할 수 있습니다. Vercel 배포 시 프로젝트 설정의 **Deployment Protection**
+> (Vercel Authentication)을 켜서 접근을 제한하는 것을 권장합니다.
 
 이미지 업로드는 Supabase Storage(`augment-images` 버킷)를 사용하므로 별도 설정
 없이 Vercel에서도 그대로 동작합니다.
@@ -104,7 +105,10 @@ npm run seed:sample
 
 ## 8. 알려진 제한사항 / 향후 조정 여지
 
-- 인증은 단일 비밀번호 기반의 간단한 세션 쿠키입니다(개인용 전제).
+- **로그인/비밀번호 기능이 없습니다.** URL만 알면 누구나 접속해 데이터를 보고
+  수정할 수 있습니다. 개인 로컬 사용이나, 위 6번의 Vercel Deployment Protection
+  같은 별도 접근 제어와 함께 쓰는 걸 전제로 합니다. 다시 비밀번호를 붙이고
+  싶으시면 말씀해주세요.
 - 티어 내 세부 순서(드래그로 같은 티어 안에서 순서 바꾸기)는 구현하지 않았습니다.
   현재는 어떤 티어에 속하는지만 저장하고, 같은 티어 안에서는 등록 순서대로 표시됩니다.
   필요하시면 `@dnd-kit/sortable`을 추가해 세부 정렬을 구현할 수 있습니다.

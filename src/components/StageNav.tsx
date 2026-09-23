@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { STAGES } from "@/lib/constants";
 import RefreshDataButton from "./RefreshDataButton";
-import LogoutButton from "./LogoutButton";
 
 export default function StageNav() {
   const pathname = usePathname();
@@ -31,7 +30,6 @@ export default function StageNav() {
       </div>
       <div className="flex items-center gap-2">
         <RefreshDataButton />
-        <LogoutButton />
       </div>
     </header>
   );
