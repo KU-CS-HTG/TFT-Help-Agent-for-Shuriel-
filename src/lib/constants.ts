@@ -8,6 +8,10 @@ export function isStage(value: string): value is Stage {
 export const RARITIES = ["silver", "gold", "prism"] as const;
 export type Rarity = (typeof RARITIES)[number];
 
+export function isRarity(value: unknown): value is Rarity {
+  return typeof value === "string" && (RARITIES as readonly string[]).includes(value);
+}
+
 export const RARITY_TO_STAGE: Record<Rarity, Stage> = {
   silver: "2-1",
   gold: "3-2",

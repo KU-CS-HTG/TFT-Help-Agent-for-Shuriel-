@@ -11,15 +11,18 @@
 import { config } from "dotenv";
 import path from "node:path";
 import { readFile, writeFile } from "node:fs/promises";
-import type { Rarity } from "../src/lib/constants";
+import { isRarity } from "../src/lib/constants";
 
 config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const OVERRIDES_PATH = path.resolve(process.cwd(), "data/rarity-overrides.json");
 
+// rarity는 사람이 JSON 파일에 직접 타이핑하는 값이라 여기서는 string | null로
+// 느슨하게 받고, 실제로 쓰기 전에 isRarity()로 검증합니다 (오타/대소문자 등이
+// 그대로 DB까지 흘러가 upsert 전체를 실패시킨 적이 있어 방어적으로 처리).
 interface OverridesFile {
   _note: string;
-  entries: Record<string, { name: string; rarity: Rarity | null }>;
+  entries: Record<string, { name: string; rarity: string | null }>;
 }
 
 async function loadOverrides(): Promise<OverridesFile> {
@@ -56,11 +59,21 @@ async function main() {
     console.log(`data/rarity-overrides.json에서 "DA_"로 시작하지 않는 오래된 항목 ${prunedCount}개를 정리했습니다.`);
   }
 
-  const rarityOverrides: Record<string, Rarity> = {};
+  const rarityOverrides: Record<string, string> = {};
+  const invalidEntries: Array<{ apiName: string; value: string }> = [];
   for (const [apiName, entry] of Object.entries(overridesFile.entries)) {
-    if (entry.rarity) rarityOverrides[apiName] = entry.rarity;
+    if (entry.rarity === null) continue;
+    if (isRarity(entry.rarity)) {
+      rarityOverrides[apiName] = entry.rarity;
+    } else {
+      invalidEntries.push({ apiName, value: entry.rarity });
+    }
   }
   console.log(`data/rarity-overrides.json에서 등급 ${Object.keys(rarityOverrides).length}건 불러옴.`);
+  if (invalidEntries.length > 0) {
+    console.warn(`\ndata/rarity-overrides.json 값이 silver/gold/prism이 아닌 항목 ${invalidEntries.length}건 (무시됨):`);
+    for (const { apiName, value } of invalidEntries) console.warn(`  - ${apiName}: "${value}"`);
+  }
 
   console.log("Community Dragon에서 증강체 데이터를 가져오는 중...");
   const result = await fetchAndParseAugments({ rarityOverrides });
