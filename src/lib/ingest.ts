@@ -34,6 +34,8 @@ export interface IngestResult {
     setCount: number;
     sets: Array<{ number: unknown; mutator: unknown; keys: string[] }>;
     firstMatchingSetKeys?: string[];
+    augmentsListLength?: number;
+    firstAugmentSample?: unknown;
   };
 }
 
@@ -147,10 +149,12 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
   }
 
   const rawAugments = new Map<string, Record<string, unknown>>();
+  let combinedRawList: Array<Record<string, unknown>> = [];
   for (const set of matchingSets) {
     const list = (set.augments ?? set.augmentsList ?? set.augmentList ?? []) as Array<
       Record<string, unknown>
     >;
+    combinedRawList = combinedRawList.concat(list);
     for (const aug of list) {
       const apiName = aug?.apiName;
       if (typeof apiName !== "string") continue;
@@ -161,7 +165,7 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
   if (matchingSets.length > 0 && rawAugments.size === 0) {
     warnings.push(
       `number=${setNumber} 세트는 찾았지만 그 안에서 증강체 목록을 찾지 못했습니다. ` +
-        `set.augments / set.augmentsList 필드명이 다를 수 있습니다.`
+        `set.augments / set.augmentsList 필드명이 다를 수 있거나, 각 항목에 apiName 필드가 없을 수 있습니다.`
     );
     debug = {
       topLevelKeys: Object.keys(data),
@@ -172,6 +176,8 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
         keys: Object.keys(s),
       })),
       firstMatchingSetKeys: Object.keys(matchingSets[0]),
+      augmentsListLength: combinedRawList.length,
+      firstAugmentSample: combinedRawList[0] ?? null,
     };
   }
 
