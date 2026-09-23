@@ -36,6 +36,9 @@ export interface IngestResult {
     firstMatchingSetKeys?: string[];
     augmentsListLength?: number;
     firstAugmentSample?: unknown;
+    itemsArrayLength?: number;
+    firstReferencedApiName?: string | null;
+    firstItemSample?: unknown;
   };
 }
 
@@ -148,24 +151,50 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
     };
   }
 
+  // set.augments는 객체 배열이 아니라 apiName 문자열 배열인 경우가 있다
+  // (실측: TFTSet18의 augments가 ["DA_18_BigGrabBag", ...] 형태). 그 경우
+  // 실제 이름/설명/아이콘을 가진 객체는 최상위 data.items 배열에 있고,
+  // apiName으로 대조해서 찾아와야 한다.
+  const referencedApiNames = new Set<string>();
   const rawAugments = new Map<string, Record<string, unknown>>();
-  let combinedRawList: Array<Record<string, unknown>> = [];
+  let combinedRawList: unknown[] = [];
+
   for (const set of matchingSets) {
-    const list = (set.augments ?? set.augmentsList ?? set.augmentList ?? []) as Array<
-      Record<string, unknown>
-    >;
+    const list = (set.augments ?? set.augmentsList ?? set.augmentList ?? []) as unknown[];
     combinedRawList = combinedRawList.concat(list);
-    for (const aug of list) {
-      const apiName = aug?.apiName;
-      if (typeof apiName !== "string") continue;
-      rawAugments.set(apiName, aug);
+    for (const entry of list) {
+      if (typeof entry === "string") {
+        referencedApiNames.add(entry);
+      } else if (entry && typeof entry === "object") {
+        const obj = entry as Record<string, unknown>;
+        if (typeof obj.apiName === "string") {
+          referencedApiNames.add(obj.apiName);
+          // 이미 완전한 증강체 객체라면(desc/icon 보유) 바로 사용
+          if (typeof obj.desc === "string" || typeof obj.icon === "string") {
+            rawAugments.set(obj.apiName, obj);
+          }
+        }
+      }
+    }
+  }
+
+  const itemsArray = Array.isArray(data.items) ? (data.items as Array<Record<string, unknown>>) : [];
+  if (itemsArray.length > 0 && referencedApiNames.size > 0) {
+    const itemsByApiName = new Map<string, Record<string, unknown>>();
+    for (const item of itemsArray) {
+      if (typeof item?.apiName === "string") itemsByApiName.set(item.apiName, item);
+    }
+    for (const apiName of referencedApiNames) {
+      if (rawAugments.has(apiName)) continue;
+      const item = itemsByApiName.get(apiName);
+      if (item) rawAugments.set(apiName, item);
     }
   }
 
   if (matchingSets.length > 0 && rawAugments.size === 0) {
     warnings.push(
-      `number=${setNumber} 세트는 찾았지만 그 안에서 증강체 목록을 찾지 못했습니다. ` +
-        `set.augments / set.augmentsList 필드명이 다를 수 있거나, 각 항목에 apiName 필드가 없을 수 있습니다.`
+      `number=${setNumber} 세트에서 증강체 apiName은 ${referencedApiNames.size}개 찾았지만, ` +
+        `data.items(${itemsArray.length}개)에서 매칭되는 객체를 찾지 못했습니다.`
     );
     debug = {
       topLevelKeys: Object.keys(data),
@@ -178,6 +207,9 @@ export async function fetchAndParseAugments(options?: { setNumber?: number }): P
       firstMatchingSetKeys: Object.keys(matchingSets[0]),
       augmentsListLength: combinedRawList.length,
       firstAugmentSample: combinedRawList[0] ?? null,
+      itemsArrayLength: itemsArray.length,
+      firstReferencedApiName: [...referencedApiNames][0] ?? null,
+      firstItemSample: itemsArray[0] ?? null,
     };
   }
 
