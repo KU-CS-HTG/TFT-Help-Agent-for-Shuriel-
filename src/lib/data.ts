@@ -6,10 +6,13 @@ import type { Augment, AugmentImage, AugmentNote, AugmentWithExtras, TierPlaceme
 export async function getStageBoardData(stage: Stage): Promise<AugmentWithExtras[]> {
   const supabase = getSupabaseServerClient();
 
+  // stage(기본 스테이지)와 일치하거나, extra_stages(사용자가 추가한 스테이지)에
+  // 포함된 증강체를 함께 가져온다 — 같은 증강체가 여러 스테이지 풀에 동시에
+  // 등장할 수 있다.
   const { data: augments, error } = await supabase
     .from("augments")
     .select("*")
-    .eq("stage", stage)
+    .or(`stage.eq.${stage},extra_stages.cs.{${stage}}`)
     .order("name");
   if (error) throw new Error(error.message);
   if (!augments || augments.length === 0) return [];
