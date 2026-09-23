@@ -6,13 +6,14 @@ import type { Augment, AugmentImage, AugmentNote, AugmentWithExtras, TierPlaceme
 export async function getStageBoardData(stage: Stage): Promise<AugmentWithExtras[]> {
   const supabase = getSupabaseServerClient();
 
-  // stage(기본 스테이지)와 일치하거나, extra_stages(사용자가 추가한 스테이지)에
-  // 포함된 증강체를 함께 가져온다 — 같은 증강체가 여러 스테이지 풀에 동시에
-  // 등장할 수 있다.
+  // stages 배열에 이 스테이지가 포함된 증강체만 가져온다. stages는 사용자가
+  // 체크박스로 직접 관리하는 값이라(등급 기반 자동 배정 없음, 기본은 빈 배열)
+  // 같은 증강체가 여러 스테이지 풀에 동시에 등장할 수도, 아무 데도 안 나타날
+  // 수도 있다.
   const { data: augments, error } = await supabase
     .from("augments")
     .select("*")
-    .or(`stage.eq.${stage},extra_stages.cs.{${stage}}`)
+    .contains("stages", [stage])
     .order("name");
   if (error) throw new Error(error.message);
   if (!augments || augments.length === 0) return [];
@@ -48,4 +49,29 @@ export async function getStageBoardData(stage: Stage): Promise<AugmentWithExtras
     note: noteMap.get(a.id) ?? null,
     images: imagesMap.get(a.id) ?? [],
   }));
+}
+
+export interface AugmentLight {
+  id: string;
+  name: string;
+  icon_url: string | null;
+  stages: Stage[];
+}
+
+/**
+ * 스테이지 배정과 무관하게 전체 증강체를 가볍게 가져온다. stages가 비어있는
+ * (아직 어느 스테이지에도 체크 안 된) 증강체를 찾아서 추가할 수 있게 하는
+ * "증강체 추가" 검색 패널용 — 이게 없으면 stages가 빈 증강체는 어느 보드에도
+ * 안 보여서 체크할 방법이 없다.
+ */
+export async function getAllAugmentsLight(): Promise<AugmentLight[]> {
+  const supabase = getSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("augments")
+    .select("id, name, icon_url, stages")
+    .order("name");
+  if (error) throw new Error(error.message);
+
+  return (data ?? []) as AugmentLight[];
 }

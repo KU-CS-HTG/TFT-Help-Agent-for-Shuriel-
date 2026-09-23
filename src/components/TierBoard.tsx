@@ -4,19 +4,23 @@ import { useMemo, useState, useTransition } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { TIERS, type Stage, type Tier } from "@/lib/constants";
 import type { AugmentWithExtras } from "@/lib/types";
+import type { AugmentLight } from "@/lib/data";
 import { updatePlacementAction } from "@/lib/actions/tierActions";
 import TierRow from "./TierRow";
 import UnplacedPool from "./UnplacedPool";
 import SearchBar from "./SearchBar";
 import AugmentModal from "./AugmentModal";
+import AddAugmentPanel from "./AddAugmentPanel";
 
 interface Props {
   stage: Stage;
   initialAugments: AugmentWithExtras[];
+  allAugments: AugmentLight[];
 }
 
-export default function TierBoard({ stage, initialAugments }: Props) {
+export default function TierBoard({ stage, initialAugments, allAugments }: Props) {
   const [augments, setAugments] = useState(initialAugments);
+  const [lightAugments, setLightAugments] = useState(allAugments);
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -82,50 +86,71 @@ export default function TierBoard({ stage, initialAugments }: Props) {
     });
   }
 
+  function syncLightStages(augmentId: string, stages: Stage[]) {
+    setLightAugments((prev) => prev.map((a) => (a.id === augmentId ? { ...a, stages } : a)));
+  }
+
   function handleAugmentUpdate(updated: AugmentWithExtras) {
+    syncLightStages(updated.id, updated.stages);
+    if (!updated.stages.includes(stage)) {
+      // 이 스테이지 체크가 방금 꺼졌다 — 이 보드에서는 바로 사라져야 한다.
+      setAugments((prev) => prev.filter((a) => a.id !== updated.id));
+      setSelectedId(null);
+      return;
+    }
     setAugments((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
   }
 
-  if (augments.length === 0) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center text-neutral-400">
-        <p className="text-lg font-medium">이 스테이지에 등록된 증강체가 없습니다.</p>
-        <p className="text-sm">
-          우측 상단의 &quot;패치 데이터 새로고침&quot; 버튼을 누르거나, <br />
-          네트워크가 제한된 환경이라면 <code className="rounded bg-neutral-800 px-1">npm run seed:sample</code> 로
-          샘플 데이터를 넣어보세요.
-        </p>
-      </div>
-    );
+  function handleAugmentAdded(added: AugmentWithExtras) {
+    setAugments((prev) => (prev.some((a) => a.id === added.id) ? prev : [...prev, added]));
   }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <SearchBar value={search} onChange={setSearch} />
 
-      <DndContext id={`tier-board-${stage}`} sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="overflow-hidden rounded-xl border border-neutral-800">
-          {TIERS.map((tier) => (
-            <TierRow
-              key={tier}
-              tier={tier}
-              augments={byTier[tier]}
-              matchesSearch={matchesSearch}
-              onSelect={(a) => setSelectedId(a.id)}
-            />
-          ))}
+      <AddAugmentPanel
+        stage={stage}
+        allAugments={lightAugments}
+        onAdded={handleAugmentAdded}
+        onStagesChanged={syncLightStages}
+      />
+
+      {augments.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center text-neutral-400">
+          <p className="text-lg font-medium">이 스테이지에 등장하는 것으로 체크된 증강체가 없습니다.</p>
+          <p className="text-sm">
+            위의 &quot;+ 증강체 추가&quot;에서 검색해 이 스테이지에 추가하세요. <br />
+            DB에 증강체 자체가 하나도 없다면 우측 상단 &quot;패치 데이터 새로고침&quot; 버튼을 먼저 눌러주세요.
+          </p>
         </div>
+      ) : (
+        <>
+          <DndContext id={`tier-board-${stage}`} sensors={sensors} onDragEnd={handleDragEnd}>
+            <div className="overflow-hidden rounded-xl border border-neutral-800">
+              {TIERS.map((tier) => (
+                <TierRow
+                  key={tier}
+                  tier={tier}
+                  augments={byTier[tier]}
+                  matchesSearch={matchesSearch}
+                  onSelect={(a) => setSelectedId(a.id)}
+                />
+              ))}
+            </div>
 
-        <UnplacedPool augments={unplaced} matchesSearch={matchesSearch} onSelect={(a) => setSelectedId(a.id)} />
-      </DndContext>
+            <UnplacedPool augments={unplaced} matchesSearch={matchesSearch} onSelect={(a) => setSelectedId(a.id)} />
+          </DndContext>
 
-      {selected && (
-        <AugmentModal
-          augment={selected}
-          stage={stage}
-          onClose={() => setSelectedId(null)}
-          onUpdate={handleAugmentUpdate}
-        />
+          {selected && (
+            <AugmentModal
+              augment={selected}
+              stage={stage}
+              onClose={() => setSelectedId(null)}
+              onUpdate={handleAugmentUpdate}
+            />
+          )}
+        </>
       )}
     </div>
   );
