@@ -1000,22 +1000,6 @@
     "DA_ExpectedUnexpectedness": {
       "name": "예상된 예상 밖의 결과",
       "rarity": "prism"
-    },
-    "DA_18_InfernoTraitAugment": {
-      "name": "화염 점화",
-      "rarity": null
-    },
-    "DA_PrismaticDestiny": {
-      "name": "프리즘 운명",
-      "rarity": null
-    },
-    "DA_PrismaticDestinyPlus": {
-      "name": "프리즘 운명+",
-      "rarity": null
-    },
-    "DA_PrismaticTicket": {
-      "name": "프리즘 티켓",
-      "rarity": null
     }
   }
 }
