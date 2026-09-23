@@ -14,6 +14,8 @@ export type Augment = {
   icon_url: string | null;
   rarity: Rarity;
   stage: Stage;
+  /** stage 외에 추가로 등장하는 스테이지 (사용자가 직접 관리, 새로고침이 건드리지 않음) */
+  extra_stages: Stage[];
   set_number: number;
   patch_version: string;
   created_at: string;
