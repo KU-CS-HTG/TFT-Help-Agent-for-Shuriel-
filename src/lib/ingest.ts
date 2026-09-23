@@ -41,7 +41,7 @@ export interface IngestResult {
     itemsArrayLength?: number;
     firstReferencedApiName?: string | null;
     firstItemSample?: unknown;
-    excludedOtherSetCount?: number;
+    excludedNonDaCount?: number;
     rarityUnresolvedSample?: { apiName: string; raw: unknown };
     raritySuccessSample?: { apiName: string; raw: unknown; rarity: Rarity };
   };
@@ -182,24 +182,22 @@ export async function fetchAndParseAugments(options?: {
     }
   }
 
-  // TFTSet18의 augments 목록에는 다른 세트 전용 증강체(TFT6_Augment_*,
-  // TFT9_Augment_Commander_* 등)나 특별 모드용 증강체(DA_URF 등)가 함께
-  // 섞여 나온다(실측: 592개 중 45개만 등급 판별 성공, 나머지 대부분이
-  // TFT6~TFT17 접두사). apiName 자체에 다른 세트 번호가 명시된 경우만
-  // 확실하게 걸러낸다 — 세트 번호가 없는 범용 접두사(DA_*, TFT_Augment_*)는
-  // 이 패치의 Set 18 도전 과제/모드 전용일 수도, 여전히 활성화된 범용
-  // 증강체일 수도 있어 이 휴리스틱만으로는 완벽히 가려낼 수 없다.
-  let excludedOtherSetCount = 0;
+  // TFTSet18의 augments 목록에는 구식 네이밍(TFT_Augment_*, TFT6_Augment_*,
+  // TFT9_Augment_Commander_* 등)의 레거시/비활성 증강체가 대량으로 섞여
+  // 나온다. 실측 결과 현재 활성 증강체는 전부 "DA_"로 시작하는 새 네이밍
+  // (DA_18_전용 또는 세트 번호 없는 범용 DA_*)을 쓰고 있어, 그 외
+  // 접두사는 전부 제외한다. 단, "DA_URF"처럼 URF 등 특수 모드 전용인
+  // DA_ 접두사 항목은 이 규칙만으로는 걸러지지 않는다.
+  let excludedNonDaCount = 0;
   for (const apiName of [...referencedApiNames]) {
-    const otherSetMatch = apiName.match(/^TFT(\d+)_/i);
-    if (otherSetMatch && Number(otherSetMatch[1]) !== setNumber) {
+    if (!apiName.startsWith("DA_")) {
       referencedApiNames.delete(apiName);
-      excludedOtherSetCount += 1;
+      excludedNonDaCount += 1;
     }
   }
-  if (excludedOtherSetCount > 0) {
+  if (excludedNonDaCount > 0) {
     warnings.push(
-      `apiName에 다른 세트 번호가 명시된 증강체 ${excludedOtherSetCount}개를 제외했습니다 (예: TFT6_Augment_*, TFT9_Augment_* 등).`
+      `"DA_"로 시작하지 않는(구식 네이밍) 증강체 ${excludedNonDaCount}개를 제외했습니다 (예: TFT_Augment_*, TFT6_Augment_* 등).`
     );
   }
 
@@ -235,7 +233,7 @@ export async function fetchAndParseAugments(options?: {
       itemsArrayLength: itemsArray.length,
       firstReferencedApiName: [...referencedApiNames][0] ?? null,
       firstItemSample: itemsArray[0] ?? null,
-      excludedOtherSetCount,
+      excludedNonDaCount,
     };
   }
 

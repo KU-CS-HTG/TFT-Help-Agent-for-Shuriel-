@@ -41,6 +41,21 @@ async function main() {
   const { getSupabaseServerClient } = await import("../src/lib/supabase");
 
   const overridesFile = await loadOverrides();
+
+  // "DA_"로 시작하지 않는 항목(TFT_Augment_* 등 구식 네이밍)은 ingest.ts에서
+  // 애초에 제외되어 다시는 쓰이지 않으므로, 예전 실행에서 쌓인 항목이 있다면
+  // 정리한다.
+  let prunedCount = 0;
+  for (const apiName of Object.keys(overridesFile.entries)) {
+    if (!apiName.startsWith("DA_")) {
+      delete overridesFile.entries[apiName];
+      prunedCount += 1;
+    }
+  }
+  if (prunedCount > 0) {
+    console.log(`data/rarity-overrides.json에서 "DA_"로 시작하지 않는 오래된 항목 ${prunedCount}개를 정리했습니다.`);
+  }
+
   const rarityOverrides: Record<string, Rarity> = {};
   for (const [apiName, entry] of Object.entries(overridesFile.entries)) {
     if (entry.rarity) rarityOverrides[apiName] = entry.rarity;
@@ -71,9 +86,9 @@ async function main() {
       addedCount += 1;
     }
   }
-  if (addedCount > 0) {
+  if (addedCount > 0 || prunedCount > 0) {
     await writeFile(OVERRIDES_PATH, JSON.stringify(overridesFile, null, 2) + "\n", "utf-8");
-    console.log(`\ndata/rarity-overrides.json에 새 항목 ${addedCount}개를 추가했습니다.`);
+    if (addedCount > 0) console.log(`\ndata/rarity-overrides.json에 새 항목 ${addedCount}개를 추가했습니다.`);
   }
   const pendingCount = Object.values(overridesFile.entries).filter((e) => e.rarity === null).length;
   if (pendingCount > 0) {
