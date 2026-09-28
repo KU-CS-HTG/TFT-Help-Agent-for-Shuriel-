@@ -1,7 +1,7 @@
 import "server-only";
 import { getSupabaseServerClient } from "./supabase";
 import type { Stage } from "./constants";
-import type { Augment, AugmentImage, AugmentNote, AugmentWithExtras, TierPlacement } from "./types";
+import type { Augment, AugmentImage, AugmentNote, AugmentWithExtras, StageNote, TierPlacement } from "./types";
 
 export async function getStageBoardData(stage: Stage): Promise<AugmentWithExtras[]> {
   const supabase = getSupabaseServerClient();
@@ -74,4 +74,14 @@ export async function getAllAugmentsLight(): Promise<AugmentLight[]> {
   if (error) throw new Error(error.message);
 
   return (data ?? []) as AugmentLight[];
+}
+
+/** 스테이지 전체에 대한 전략 메모를 가져온다. 아직 작성한 적 없으면 null. */
+export async function getStageNote(stage: Stage): Promise<StageNote | null> {
+  const supabase = getSupabaseServerClient();
+
+  const { data, error } = await supabase.from("stage_notes").select("*").eq("stage", stage).maybeSingle();
+  if (error) throw new Error(error.message);
+
+  return (data as StageNote | null) ?? null;
 }
