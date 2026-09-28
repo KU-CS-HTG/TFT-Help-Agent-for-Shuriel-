@@ -96,16 +96,11 @@ export async function getStageNote(stage: Stage): Promise<StageNote | null> {
   return (data as StageNote | null) ?? null;
 }
 
-/** 스테이지별 "플레이할 만한 덱" 목록을 서브 이미지까지 채워서 가져온다. */
-export async function getDecksForStage(stage: Stage): Promise<DeckWithImages[]> {
+/** "플레이할 만한 덱" 목록(스테이지 구분 없는 공용 목록)을 서브 이미지까지 채워서 가져온다. */
+export async function getAllDecks(): Promise<DeckWithImages[]> {
   const supabase = getSupabaseServerClient();
 
-  const { data: decks, error } = await supabase
-    .from("decks")
-    .select("*")
-    .eq("stage", stage)
-    .order("position")
-    .order("created_at");
+  const { data: decks, error } = await supabase.from("decks").select("*").order("position").order("created_at");
   if (error) throw new Error(error.message);
   if (!decks || decks.length === 0) return [];
 

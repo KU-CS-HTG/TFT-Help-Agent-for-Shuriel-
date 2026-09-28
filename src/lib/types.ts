@@ -66,7 +66,6 @@ export type StageNote = {
 
 export type Deck = {
   id: string;
-  stage: Stage;
   name: string;
   main_image_url: string | null;
   main_image_storage_path: string | null;
