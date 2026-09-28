@@ -298,8 +298,10 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
             <div className="flex flex-wrap gap-3">
               {augment.images.map((img) => (
                 <div key={img.id} className="relative h-24 w-24 overflow-hidden rounded-lg border border-neutral-700">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt="첨부 이미지" className="h-full w-full object-cover" />
+                  <a href={img.url} target="_blank" rel="noopener noreferrer" title="새 탭에서 크게 보기">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img.url} alt="첨부 이미지" className="h-full w-full object-cover" />
+                  </a>
                   <div className="absolute inset-x-0 bottom-0 flex bg-black/60 text-[10px]">
                     <button
                       type="button"
