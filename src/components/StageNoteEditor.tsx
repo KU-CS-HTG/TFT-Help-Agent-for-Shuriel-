@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import type { Stage } from "@/lib/constants";
 import type { StageNote } from "@/lib/types";
 import { updateStageNoteAction } from "@/lib/actions/stageNoteActions";
+import { useRegisterDirty } from "@/lib/unsavedChanges";
 
 interface Props {
   stage: Stage;
@@ -15,6 +16,8 @@ export default function StageNoteEditor({ stage, initialNote }: Props) {
   const [note, setNote] = useState(initialNote);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  useRegisterDirty(`stage-note-${stage}`, content !== (note?.content ?? ""));
 
   function save() {
     setError(null);

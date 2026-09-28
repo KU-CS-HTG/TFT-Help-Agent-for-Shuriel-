@@ -3,10 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { STAGES } from "@/lib/constants";
+import { useUnsavedChanges } from "@/lib/unsavedChanges";
 import RefreshDataButton from "./RefreshDataButton";
 
 export default function StageNav() {
   const pathname = usePathname();
+  const { confirmLeave } = useUnsavedChanges();
+
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (!confirmLeave()) e.preventDefault();
+  }
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800 bg-neutral-900 px-4 py-3">
@@ -17,6 +23,7 @@ export default function StageNav() {
             <Link
               key={stage}
               href={`/${stage}`}
+              onClick={handleNavClick}
               className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
                 active
                   ? "bg-indigo-600 text-white"
