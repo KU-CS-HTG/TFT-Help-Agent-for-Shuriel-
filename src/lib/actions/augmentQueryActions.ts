@@ -15,7 +15,7 @@ export async function fetchAugmentForStage(augmentId: string, stage: Stage): Pro
   const [augmentRes, placementRes, noteRes, imagesRes] = await Promise.all([
     supabase.from("augments").select("*").eq("id", augmentId).single(),
     supabase.from("tier_placements").select("*").eq("stage", stage).eq("augment_id", augmentId).maybeSingle(),
-    supabase.from("augment_notes").select("*").eq("augment_id", augmentId).maybeSingle(),
+    supabase.from("augment_notes").select("*").eq("stage", stage).eq("augment_id", augmentId).maybeSingle(),
     supabase.from("augment_images").select("*").eq("augment_id", augmentId).order("position"),
   ]);
 

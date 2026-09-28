@@ -35,6 +35,8 @@ export type TierPlacement = {
 
 export type AugmentNote = {
   augment_id: string;
+  /** 메모는 스테이지별로 독립적 (tier_placements와 같은 방식) */
+  stage: Stage;
   content: string;
   patch_version: string | null;
   updated_at: string;

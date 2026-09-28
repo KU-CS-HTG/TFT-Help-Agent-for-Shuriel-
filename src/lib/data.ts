@@ -22,7 +22,7 @@ export async function getStageBoardData(stage: Stage): Promise<AugmentWithExtras
 
   const [placementsRes, notesRes, imagesRes] = await Promise.all([
     supabase.from("tier_placements").select("*").eq("stage", stage).in("augment_id", ids),
-    supabase.from("augment_notes").select("*").in("augment_id", ids),
+    supabase.from("augment_notes").select("*").eq("stage", stage).in("augment_id", ids),
     supabase.from("augment_images").select("*").in("augment_id", ids).order("position"),
   ]);
 
