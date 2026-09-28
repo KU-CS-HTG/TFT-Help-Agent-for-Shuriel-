@@ -9,6 +9,7 @@ import { updateNoteAction } from "@/lib/actions/noteActions";
 import { updateGameDescriptionAction } from "@/lib/actions/descriptionActions";
 import { addImagesAction, deleteImageAction } from "@/lib/actions/imageActions";
 import { updateStagesAction } from "@/lib/actions/stageMembershipActions";
+import { UNSAVED_CHANGES_MESSAGE, useRegisterDirty } from "@/lib/unsavedChanges";
 
 interface Props {
   augment: AugmentWithExtras;
@@ -25,6 +26,16 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
   const [pending, startTransition] = useTransition();
   const addFileInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const noteDirty = noteContent !== (augment.note?.content ?? "");
+  const descriptionDirty = descriptionContent !== augment.description_game;
+  const dirty = noteDirty || descriptionDirty;
+  useRegisterDirty(`augment-modal-${augment.id}`, dirty);
+
+  function handleClose() {
+    if (dirty && !window.confirm(UNSAVED_CHANGES_MESSAGE)) return;
+    onClose();
+  }
 
   function saveNote(content: string) {
     setError(null);
@@ -123,7 +134,7 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      onClick={onClose}
+      onClick={handleClose}
     >
       <div
         className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-y-auto rounded-2xl border border-neutral-800 bg-neutral-900 p-6"
@@ -148,7 +159,7 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-700"
           >
             닫기
