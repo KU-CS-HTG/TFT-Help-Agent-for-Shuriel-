@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TFT 증강체 티어 정리",
-  description: "개인 맞춤형 TFT 증강체 티어 정리 도구",
+  title: "TFT 개인 맞춤형 도우미 에이전트",
+  description: "TFT 개인 맞춤형 도우미 에이전트 — 증강체 티어 정리와 덱 메모",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

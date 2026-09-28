@@ -1,4 +1,4 @@
--- TFT 증강체 티어 정리 에이전트 - DB 스키마
+-- TFT 개인 맞춤형 도우미 에이전트 - DB 스키마
 -- Supabase 프로젝트의 SQL Editor에서 이 파일 전체를 한 번 실행하세요.
 
 create extension if not exists "pgcrypto";

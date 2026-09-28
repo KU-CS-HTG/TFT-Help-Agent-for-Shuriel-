@@ -1,4 +1,4 @@
-import type { Augment, AugmentImage, AugmentNote, StageNote, TierPlacement } from "./types";
+import type { Augment, AugmentImage, AugmentNote, Deck, DeckSubImage, StageNote, TierPlacement } from "./types";
 
 // supabase-js는 Database 제네릭이 없으면(기본값 any) 일부 버전에서 insert/upsert
 // 페이로드 타입이 never로 좁혀지는 문제가 있어, 테이블 Row 모양을 직접 선언해
@@ -19,6 +19,8 @@ export interface Database {
       augment_notes: Table<AugmentNote>;
       augment_images: Table<AugmentImage>;
       stage_notes: Table<StageNote>;
+      decks: Table<Deck>;
+      deck_sub_images: Table<DeckSubImage>;
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

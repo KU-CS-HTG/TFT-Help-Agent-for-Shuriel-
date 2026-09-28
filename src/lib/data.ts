@@ -1,7 +1,17 @@
 import "server-only";
 import { getSupabaseServerClient } from "./supabase";
 import type { Stage } from "./constants";
-import type { Augment, AugmentImage, AugmentNote, AugmentWithExtras, StageNote, TierPlacement } from "./types";
+import type {
+  Augment,
+  AugmentImage,
+  AugmentNote,
+  AugmentWithExtras,
+  Deck,
+  DeckSubImage,
+  DeckWithImages,
+  StageNote,
+  TierPlacement,
+} from "./types";
 
 export async function getStageBoardData(stage: Stage): Promise<AugmentWithExtras[]> {
   const supabase = getSupabaseServerClient();
@@ -84,4 +94,39 @@ export async function getStageNote(stage: Stage): Promise<StageNote | null> {
   if (error) throw new Error(error.message);
 
   return (data as StageNote | null) ?? null;
+}
+
+/** 스테이지별 "플레이할 만한 덱" 목록을 서브 이미지까지 채워서 가져온다. */
+export async function getDecksForStage(stage: Stage): Promise<DeckWithImages[]> {
+  const supabase = getSupabaseServerClient();
+
+  const { data: decks, error } = await supabase
+    .from("decks")
+    .select("*")
+    .eq("stage", stage)
+    .order("position")
+    .order("created_at");
+  if (error) throw new Error(error.message);
+  if (!decks || decks.length === 0) return [];
+
+  const ids = (decks as Deck[]).map((d) => d.id);
+
+  const { data: subImages, error: subImagesError } = await supabase
+    .from("deck_sub_images")
+    .select("*")
+    .in("deck_id", ids)
+    .order("position");
+  if (subImagesError) throw new Error(subImagesError.message);
+
+  const subImagesMap = new Map<string, DeckSubImage[]>();
+  for (const img of (subImages as DeckSubImage[]) ?? []) {
+    const list = subImagesMap.get(img.deck_id) ?? [];
+    list.push(img);
+    subImagesMap.set(img.deck_id, list);
+  }
+
+  return (decks as Deck[]).map((d) => ({
+    ...d,
+    subImages: subImagesMap.get(d.id) ?? [],
+  }));
 }
