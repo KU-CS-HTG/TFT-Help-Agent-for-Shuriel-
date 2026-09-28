@@ -56,3 +56,10 @@ export type AugmentWithExtras = Augment & {
   note: AugmentNote | null;
   images: AugmentImage[];
 };
+
+/** 스테이지 전체에 대한 전략 메모 (개별 증강체 메모와 별개) */
+export type StageNote = {
+  stage: Stage;
+  content: string;
+  updated_at: string;
+};
