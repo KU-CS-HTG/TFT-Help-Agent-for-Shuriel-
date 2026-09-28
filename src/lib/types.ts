@@ -63,3 +63,28 @@ export type StageNote = {
   content: string;
   updated_at: string;
 };
+
+export type Deck = {
+  id: string;
+  stage: Stage;
+  name: string;
+  main_image_url: string | null;
+  main_image_storage_path: string | null;
+  tips: string;
+  position: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type DeckSubImage = {
+  id: string;
+  deck_id: string;
+  storage_path: string;
+  url: string;
+  position: number;
+  created_at: string;
+};
+
+export type DeckWithImages = Deck & {
+  subImages: DeckSubImage[];
+};
