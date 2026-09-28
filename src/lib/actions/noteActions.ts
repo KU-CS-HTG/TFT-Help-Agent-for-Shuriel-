@@ -11,8 +11,8 @@ export async function updateNoteAction(augmentId: string, stage: Stage, content:
   const { data, error } = await supabase
     .from("augment_notes")
     .upsert(
-      { augment_id: augmentId, content, patch_version: CURRENT_PATCH_VERSION },
-      { onConflict: "augment_id" }
+      { augment_id: augmentId, stage, content, patch_version: CURRENT_PATCH_VERSION },
+      { onConflict: "augment_id,stage" }
     )
     .select()
     .single();
