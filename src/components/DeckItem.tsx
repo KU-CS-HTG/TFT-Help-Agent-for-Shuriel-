@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import type { Stage } from "@/lib/constants";
 import type { DeckWithImages } from "@/lib/types";
 import { deleteDeckAction, updateDeckNameAction, updateDeckTipsAction } from "@/lib/actions/deckActions";
 import {
@@ -16,14 +15,13 @@ const IMAGE_ACCEPT = "image/png,image/jpeg,image/webp";
 
 interface Props {
   deck: DeckWithImages;
-  stage: Stage;
   expanded: boolean;
   onToggle: () => void;
   onUpdate: (deck: DeckWithImages) => void;
   onDelete: (deckId: string) => void;
 }
 
-export default function DeckItem({ deck, stage, expanded, onToggle, onUpdate, onDelete }: Props) {
+export default function DeckItem({ deck, expanded, onToggle, onUpdate, onDelete }: Props) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(deck.name);
   const [tipsContent, setTipsContent] = useState(deck.tips);
@@ -53,7 +51,7 @@ export default function DeckItem({ deck, stage, expanded, onToggle, onUpdate, on
     setError(null);
     startTransition(async () => {
       try {
-        const updated = await updateDeckNameAction(deck.id, stage, nameInput);
+        const updated = await updateDeckNameAction(deck.id, nameInput);
         onUpdate({ ...deck, ...updated });
         setIsEditingName(false);
       } catch (err) {
@@ -68,7 +66,7 @@ export default function DeckItem({ deck, stage, expanded, onToggle, onUpdate, on
     setError(null);
     startTransition(async () => {
       try {
-        await deleteDeckAction(deck.id, stage);
+        await deleteDeckAction(deck.id);
         onDelete(deck.id);
       } catch (err) {
         setError(err instanceof Error ? err.message : "삭제 실패");
@@ -80,7 +78,7 @@ export default function DeckItem({ deck, stage, expanded, onToggle, onUpdate, on
     setError(null);
     startTransition(async () => {
       try {
-        const updated = await updateDeckTipsAction(deck.id, stage, tipsContent);
+        const updated = await updateDeckTipsAction(deck.id, tipsContent);
         onUpdate({ ...deck, ...updated });
       } catch (err) {
         setError(err instanceof Error ? err.message : "저장 실패");
@@ -97,7 +95,6 @@ export default function DeckItem({ deck, stage, expanded, onToggle, onUpdate, on
     setError(null);
     const formData = new FormData();
     formData.set("deckId", deck.id);
-    formData.set("stage", stage);
     formData.set("file", files[0]);
 
     startTransition(async () => {
@@ -115,7 +112,7 @@ export default function DeckItem({ deck, stage, expanded, onToggle, onUpdate, on
     setError(null);
     startTransition(async () => {
       try {
-        const updated = await deleteMainImageAction(deck.id, stage, deck.main_image_storage_path!);
+        const updated = await deleteMainImageAction(deck.id, deck.main_image_storage_path!);
         onUpdate({ ...deck, ...updated });
       } catch (err) {
         setError(err instanceof Error ? err.message : "삭제 실패");
@@ -128,7 +125,6 @@ export default function DeckItem({ deck, stage, expanded, onToggle, onUpdate, on
     setError(null);
     const formData = new FormData();
     formData.set("deckId", deck.id);
-    formData.set("stage", stage);
     for (const file of Array.from(files)) formData.append("files", file);
 
     startTransition(async () => {
@@ -145,7 +141,7 @@ export default function DeckItem({ deck, stage, expanded, onToggle, onUpdate, on
     setError(null);
     startTransition(async () => {
       try {
-        await deleteSubImageAction(imageId, storagePath, stage);
+        await deleteSubImageAction(imageId, storagePath);
         onUpdate({ ...deck, subImages: deck.subImages.filter((i) => i.id !== imageId) });
       } catch (err) {
         setError(err instanceof Error ? err.message : "삭제 실패");
@@ -158,12 +154,11 @@ export default function DeckItem({ deck, stage, expanded, onToggle, onUpdate, on
     setError(null);
     const formData = new FormData();
     formData.set("deckId", deck.id);
-    formData.set("stage", stage);
     formData.append("files", files[0]);
 
     startTransition(async () => {
       try {
-        await deleteSubImageAction(imageId, storagePath, stage);
+        await deleteSubImageAction(imageId, storagePath);
         const inserted = await addSubImagesAction(formData);
         onUpdate({
           ...deck,

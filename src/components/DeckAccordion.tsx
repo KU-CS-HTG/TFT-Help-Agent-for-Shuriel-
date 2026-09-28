@@ -1,17 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { Stage } from "@/lib/constants";
 import type { DeckWithImages } from "@/lib/types";
 import { createDeckAction } from "@/lib/actions/deckActions";
 import DeckItem from "./DeckItem";
 
 interface Props {
-  stage: Stage;
   initialDecks: DeckWithImages[];
 }
 
-export default function DeckAccordion({ stage, initialDecks }: Props) {
+export default function DeckAccordion({ initialDecks }: Props) {
   const [decks, setDecks] = useState(initialDecks);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
@@ -24,7 +22,7 @@ export default function DeckAccordion({ stage, initialDecks }: Props) {
     setError(null);
     startTransition(async () => {
       try {
-        const created = await createDeckAction(stage, trimmed);
+        const created = await createDeckAction(trimmed);
         setDecks((prev) => [...prev, { ...created, subImages: [] }]);
         setNewName("");
         setExpandedId(created.id);
@@ -76,7 +74,6 @@ export default function DeckAccordion({ stage, initialDecks }: Props) {
             <DeckItem
               key={deck.id}
               deck={deck}
-              stage={stage}
               expanded={expandedId === deck.id}
               onToggle={() => setExpandedId((prev) => (prev === deck.id ? null : deck.id))}
               onUpdate={handleUpdate}

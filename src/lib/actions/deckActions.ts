@@ -2,12 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase";
-import type { Stage } from "@/lib/constants";
 import type { Deck } from "@/lib/types";
 
 const BUCKET = "augment-images";
 
-export async function createDeckAction(stage: Stage, name: string): Promise<Deck> {
+export async function createDeckAction(name: string): Promise<Deck> {
   const trimmed = name.trim();
   if (!trimmed) throw new Error("덱 이름을 입력하세요.");
 
@@ -16,7 +15,6 @@ export async function createDeckAction(stage: Stage, name: string): Promise<Deck
   const { data: existing, error: readError } = await supabase
     .from("decks")
     .select("position")
-    .eq("stage", stage)
     .order("position", { ascending: false })
     .limit(1);
   if (readError) throw new Error(readError.message);
@@ -26,16 +24,16 @@ export async function createDeckAction(stage: Stage, name: string): Promise<Deck
 
   const { data, error } = await supabase
     .from("decks")
-    .insert({ stage, name: trimmed, position: nextPosition })
+    .insert({ name: trimmed, position: nextPosition })
     .select()
     .single();
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/decks/${stage}`);
+  revalidatePath("/decks");
   return data as Deck;
 }
 
-export async function updateDeckNameAction(deckId: string, stage: Stage, name: string): Promise<Deck> {
+export async function updateDeckNameAction(deckId: string, name: string): Promise<Deck> {
   const trimmed = name.trim();
   if (!trimmed) throw new Error("덱 이름을 입력하세요.");
 
@@ -49,21 +47,21 @@ export async function updateDeckNameAction(deckId: string, stage: Stage, name: s
     .single();
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/decks/${stage}`);
+  revalidatePath("/decks");
   return data as Deck;
 }
 
-export async function updateDeckTipsAction(deckId: string, stage: Stage, tips: string): Promise<Deck> {
+export async function updateDeckTipsAction(deckId: string, tips: string): Promise<Deck> {
   const supabase = getSupabaseServerClient();
 
   const { data, error } = await supabase.from("decks").update({ tips }).eq("id", deckId).select().single();
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/decks/${stage}`);
+  revalidatePath("/decks");
   return data as Deck;
 }
 
-export async function deleteDeckAction(deckId: string, stage: Stage): Promise<void> {
+export async function deleteDeckAction(deckId: string): Promise<void> {
   const supabase = getSupabaseServerClient();
 
   // Storage에 있는 실제 파일(대표 이미지 + 서브 이미지)을 먼저 정리한다.
@@ -88,5 +86,5 @@ export async function deleteDeckAction(deckId: string, stage: Stage): Promise<vo
   const { error } = await supabase.from("decks").delete().eq("id", deckId);
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/decks/${stage}`);
+  revalidatePath("/decks");
 }

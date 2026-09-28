@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase";
-import type { Stage } from "@/lib/constants";
 import type { Deck, DeckSubImage } from "@/lib/types";
 
 const BUCKET = "augment-images";
@@ -27,10 +26,9 @@ function extensionFor(file: File): string {
 /** 대표 이미지 업로드/교체. 이미 있으면 기존 파일을 지우고 새로 올린다. */
 export async function uploadMainImageAction(formData: FormData): Promise<Deck> {
   const deckId = String(formData.get("deckId") ?? "");
-  const stage = String(formData.get("stage") ?? "") as Stage;
   const file = formData.get("file");
 
-  if (!deckId || !stage) throw new Error("잘못된 요청입니다.");
+  if (!deckId) throw new Error("잘못된 요청입니다.");
   if (!(file instanceof File) || file.size === 0) throw new Error("파일이 없습니다.");
   assertValidImage(file);
 
@@ -67,11 +65,11 @@ export async function uploadMainImageAction(formData: FormData): Promise<Deck> {
     .single();
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/decks/${stage}`);
+  revalidatePath("/decks");
   return data as Deck;
 }
 
-export async function deleteMainImageAction(deckId: string, stage: Stage, storagePath: string): Promise<Deck> {
+export async function deleteMainImageAction(deckId: string, storagePath: string): Promise<Deck> {
   const supabase = getSupabaseServerClient();
 
   const { error: removeError } = await supabase.storage.from(BUCKET).remove([storagePath]);
@@ -85,16 +83,15 @@ export async function deleteMainImageAction(deckId: string, stage: Stage, storag
     .single();
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/decks/${stage}`);
+  revalidatePath("/decks");
   return data as Deck;
 }
 
 export async function addSubImagesAction(formData: FormData): Promise<DeckSubImage[]> {
   const deckId = String(formData.get("deckId") ?? "");
-  const stage = String(formData.get("stage") ?? "") as Stage;
   const files = formData.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
 
-  if (!deckId || !stage) throw new Error("잘못된 요청입니다.");
+  if (!deckId) throw new Error("잘못된 요청입니다.");
   if (files.length === 0) return [];
 
   for (const file of files) assertValidImage(file);
@@ -122,11 +119,11 @@ export async function addSubImagesAction(formData: FormData): Promise<DeckSubIma
     inserted.push(row as DeckSubImage);
   }
 
-  revalidatePath(`/decks/${stage}`);
+  revalidatePath("/decks");
   return inserted;
 }
 
-export async function deleteSubImageAction(imageId: string, storagePath: string, stage: Stage): Promise<void> {
+export async function deleteSubImageAction(imageId: string, storagePath: string): Promise<void> {
   const supabase = getSupabaseServerClient();
 
   const { error: removeError } = await supabase.storage.from(BUCKET).remove([storagePath]);
@@ -135,5 +132,5 @@ export async function deleteSubImageAction(imageId: string, storagePath: string,
   const { error } = await supabase.from("deck_sub_images").delete().eq("id", imageId);
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/decks/${stage}`);
+  revalidatePath("/decks");
 }
