@@ -45,9 +45,10 @@ export default function StageNoteEditor({ stage, initialNote }: Props) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="이 스테이지에서 증강체를 고르는 방향성을 자유롭게 적어두세요."
-        rows={3}
-        className="w-full resize-y rounded-lg border border-neutral-700 bg-neutral-950 p-2 text-sm text-neutral-100 outline-none focus:border-indigo-500"
+        rows={8}
+        className="min-h-[8rem] w-full resize-y rounded-lg border border-neutral-700 bg-neutral-950 p-2 text-sm text-neutral-100 outline-none focus:border-indigo-500"
       />
+      <p className="mt-1 text-[10px] text-neutral-600">우측 하단 모서리를 드래그하면 칸 크기를 조절할 수 있습니다.</p>
       <div className="mt-2 flex items-center gap-2">
         <button
           type="button"
