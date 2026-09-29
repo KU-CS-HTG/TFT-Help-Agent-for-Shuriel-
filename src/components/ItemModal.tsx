@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ITEM_CATEGORY_LABEL } from "@/lib/constants";
 import type { ItemWithExtras } from "@/lib/types";
+import { deleteItemAction } from "@/lib/actions/itemActions";
 import { updateItemNoteAction } from "@/lib/actions/itemNoteActions";
 import { UNSAVED_CHANGES_MESSAGE, useRegisterDirty } from "@/lib/unsavedChanges";
 
@@ -12,9 +13,10 @@ interface Props {
   item: ItemWithExtras;
   onClose: () => void;
   onUpdate: (item: ItemWithExtras) => void;
+  onDelete: (itemId: string) => void;
 }
 
-export default function ItemModal({ item, onClose, onUpdate }: Props) {
+export default function ItemModal({ item, onClose, onUpdate, onDelete }: Props) {
   const [noteContent, setNoteContent] = useState(item.note?.content ?? "");
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +47,19 @@ export default function ItemModal({ item, onClose, onUpdate }: Props) {
     saveNote("");
   }
 
+  function handleDeleteItem() {
+    if (!window.confirm(`"${item.name}" 아이템을 목록에서 완전히 삭제할까요? (중복/오분류된 아이템 정리용)`)) return;
+    setError(null);
+    startTransition(async () => {
+      try {
+        await deleteItemAction(item.id);
+        onDelete(item.id);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "삭제 실패");
+      }
+    });
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={handleClose}>
       <div
@@ -68,13 +83,23 @@ export default function ItemModal({ item, onClose, onUpdate }: Props) {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-700"
-          >
-            닫기
-          </button>
+          <div className="flex shrink-0 gap-2">
+            <button
+              type="button"
+              disabled={pending}
+              onClick={handleDeleteItem}
+              className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm text-red-300 hover:bg-neutral-700 disabled:opacity-50"
+            >
+              삭제
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-700"
+            >
+              닫기
+            </button>
+          </div>
         </div>
 
         <div className="mb-4 rounded-lg bg-neutral-950 p-3">

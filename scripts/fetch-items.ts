@@ -1,12 +1,11 @@
 // 사용법: npm run fetch:items
-// Community Dragon에서 최신 아이템(일반/유물/찬란) 데이터를 가져와 Supabase DB에
-// upsert합니다. .env.local 에 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 가
+// Community Dragon에서 최신 아이템(일반/유물/찬란/상징) 데이터를 가져와 Supabase
+// DB에 upsert합니다. .env.local 에 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 가
 // 설정되어 있어야 합니다.
 //
-// 일반/유물/찬란 분류를 자동으로 못 찾은 아이템은 data/item-category-overrides.json
-// 의 entries에 category: null 상태로 자동 추가되니, 실제 분류를 아신다면
-// "normal" / "artifact" / "radiant" 중 하나로 채운 뒤 이 스크립트를 다시
-// 실행해 주세요.
+// 분류가 틀린 아이템이 있으면 data/item-category-overrides.json 의 entries에
+// apiName을 키로 { "name": "...", "category": "normal"/"artifact"/"radiant"/"trait" }
+// 를 직접 추가한 뒤 이 스크립트를 다시 실행하면 그 값이 우선 적용됩니다.
 
 import { config } from "dotenv";
 import path from "node:path";
@@ -29,8 +28,8 @@ async function loadOverrides(): Promise<OverridesFile> {
   } catch {
     return {
       _note:
-        "Community Dragon 아이템 데이터에서 분류(일반/유물/찬란)를 자동으로 판별하지 못한 항목이 여기 추가됩니다. " +
-        "category: null인 항목에 실제 분류('normal'/'artifact'/'radiant')를 채우고 다시 실행하세요.",
+        "아이템 분류(일반/유물/찬란/상징)가 잘못됐을 때 apiName을 키로 category를 직접 채워 넣는 파일입니다. " +
+        "'normal'/'artifact'/'radiant'/'trait' 중 하나로 채운 뒤 다시 실행하면 그 값이 자동 추정보다 우선 적용됩니다.",
       entries: {},
     };
   }
@@ -54,7 +53,7 @@ async function main() {
   }
   console.log(`data/item-category-overrides.json에서 분류 ${Object.keys(categoryOverrides).length}건 불러옴.`);
   if (invalidEntries.length > 0) {
-    console.warn(`\ndata/item-category-overrides.json 값이 normal/artifact/radiant가 아닌 항목 ${invalidEntries.length}건 (무시됨):`);
+    console.warn(`\ndata/item-category-overrides.json 값이 normal/artifact/radiant/trait가 아닌 항목 ${invalidEntries.length}건 (무시됨):`);
     for (const { apiName, value } of invalidEntries) console.warn(`  - ${apiName}: "${value}"`);
   }
 
@@ -89,7 +88,7 @@ async function main() {
   if (pendingCount > 0) {
     console.log(
       `분류 미입력 상태(category: null)인 아이템이 ${pendingCount}개 있습니다. ` +
-        `data/item-category-overrides.json을 열어 "normal"/"artifact"/"radiant" 중 하나로 채운 뒤 다시 실행하면 반영됩니다.`
+        `data/item-category-overrides.json을 열어 "normal"/"artifact"/"radiant"/"trait" 중 하나로 채운 뒤 다시 실행하면 반영됩니다.`
     );
   }
 
@@ -112,7 +111,7 @@ async function main() {
 
   console.log("\n완료!");
   console.log(
-    `  총 ${summary.total}개 (일반 ${summary.byCategory.normal} / 유물 ${summary.byCategory.artifact} / 찬란 ${summary.byCategory.radiant})`
+    `  총 ${summary.total}개 (일반 ${summary.byCategory.normal} / 유물 ${summary.byCategory.artifact} / 찬란 ${summary.byCategory.radiant} / 상징 ${summary.byCategory.trait})`
   );
   console.log(`  아이콘 확인됨: ${summary.iconsResolved}, 아이콘 못찾음: ${summary.iconsMissing}`);
 

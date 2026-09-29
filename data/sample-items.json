@@ -6,6 +6,8 @@
     { "apiName": "TFT_Item_Artifact_Sample_DeathsDaggers", "name": "샘플 죽음의 이중 단검", "officialDesc": "공격 시 20%의 추가 물리 피해를 입히며, 넘치는 피해는 뒤의 적에게 전달됩니다", "category": "artifact" },
     { "apiName": "TFT_Item_Artifact_Sample_ZzRotPortal", "name": "샘플 즈롯의 관문", "officialDesc": "일정 시간마다 강력한 골렘을 소환해 전투를 돕게 합니다", "category": "artifact" },
     { "apiName": "TFT_Item_Radiant_Sample_InfinityEdge", "name": "샘플 찬란한 무한의 검", "officialDesc": "치명타 확률 +45%, 치명타 피해량 +75%", "category": "radiant" },
-    { "apiName": "TFT_Item_Radiant_Sample_Bloodthirster", "name": "샘플 찬란한 유혈검", "officialDesc": "공격력 +35%, 체력 50% 이하가 되면 즉시 40% 회복 (전투당 1회)", "category": "radiant" }
+    { "apiName": "TFT_Item_Radiant_Sample_Bloodthirster", "name": "샘플 찬란한 유혈검", "officialDesc": "공격력 +35%, 체력 50% 이하가 되면 즉시 40% 회복 (전투당 1회)", "category": "radiant" },
+    { "apiName": "TFT_Item_Sample_SniperEmblem", "name": "샘플 저격수의 상징", "officialDesc": "이 아이템을 장착한 챔피언에게 저격수 특성을 부여합니다", "category": "trait" },
+    { "apiName": "TFT_Item_Sample_VanguardEmblem", "name": "샘플 선봉대의 상징", "officialDesc": "이 아이템을 장착한 챔피언에게 선봉대 특성을 부여합니다", "category": "trait" }
   ]
 }

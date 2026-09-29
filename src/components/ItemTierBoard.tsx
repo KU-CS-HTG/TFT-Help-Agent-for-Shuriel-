@@ -88,6 +88,11 @@ export default function ItemTierBoard({ initialItems }: Props) {
     setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
   }
 
+  function handleItemDelete(itemId: string) {
+    setItems((prev) => prev.filter((i) => i.id !== itemId));
+    setSelectedId(null);
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex flex-wrap gap-2">
@@ -139,7 +144,12 @@ export default function ItemTierBoard({ initialItems }: Props) {
           </DndContext>
 
           {selected && (
-            <ItemModal item={selected} onClose={() => setSelectedId(null)} onUpdate={handleItemUpdate} />
+            <ItemModal
+              item={selected}
+              onClose={() => setSelectedId(null)}
+              onUpdate={handleItemUpdate}
+              onDelete={handleItemDelete}
+            />
           )}
         </>
       )}
