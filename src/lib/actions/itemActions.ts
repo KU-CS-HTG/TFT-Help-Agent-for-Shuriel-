@@ -26,6 +26,10 @@ export async function deleteItemAction(itemId: string): Promise<void> {
  * 서로 독립적이라 기존 티어 배치를 그대로 들고 가면 새 보드에서 사용자가
  * 배치하지 않은 티어에 이미 올라가 있는 것처럼 보이므로, 옮길 때 기존
  * 배치는 지우고 "미분류"로 되돌린다.
+ *
+ * category_overridden을 true로 표시해서, 이후 "패치 데이터 새로고침"/
+ * npm run fetch:items가 이 분류를 자동 추정 값으로 덮어쓰지 않게 한다
+ * (upsertItems 참고 — augments.description_game_overridden과 동일한 패턴).
  */
 export async function updateItemCategoryAction(itemId: string, category: ItemCategory): Promise<Item> {
   const supabase = getSupabaseServerClient();
@@ -33,7 +37,12 @@ export async function updateItemCategoryAction(itemId: string, category: ItemCat
   const { error: placementError } = await supabase.from("item_tier_placements").delete().eq("item_id", itemId);
   if (placementError) throw new Error(placementError.message);
 
-  const { data, error } = await supabase.from("items").update({ category }).eq("id", itemId).select().single();
+  const { data, error } = await supabase
+    .from("items")
+    .update({ category, category_overridden: true })
+    .eq("id", itemId)
+    .select()
+    .single();
   if (error) throw new Error(error.message);
 
   revalidatePath("/items");
