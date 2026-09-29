@@ -120,6 +120,13 @@ Community Dragon(`ko_kr.json`)의 `data.items` 배열에서 apiName이 `TFT_Item
 `{ "name": "...", "category": "normal"/"artifact"/"radiant"/"trait" }` 를 추가한
 뒤 다시 `npm run fetch:items`를 실행하면 그 값이 우선 적용됩니다.
 
+이 스크립트를 실행할 때마다 콘솔에 **상징(trait) 아이템 전체 목록**(이름 ·
+apiName · 능력치 설명 앞부분)이 출력됩니다. 특정 상징이 안 보이거나 설명이
+패치 내용과 다르면 이 목록을 보고 바로 확인할 수 있고, apiName/이름에
+"emblem"/"상징"이 들어있는데도 `TFT_Item_` 접두어 필터에 걸리지 않아서 목록에서
+아예 빠진 항목이 있으면 별도로 경고가 출력됩니다(접두어 정규식 자체가 문제인지
+바로 알 수 있게).
+
 더미 데이터로 골격만 확인하려면:
 
 ```bash

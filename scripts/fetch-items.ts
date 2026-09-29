@@ -61,6 +61,22 @@ async function main() {
   const result = await fetchAndParseItems({ categoryOverrides });
   console.log(`파싱된 아이템 수: ${result.items.length} (패치 ${result.patchVersion})`);
 
+  // 상징(trait) 목록은 매번 전체를 보여준다 — 빠지거나 설명이 안 바뀐 상징이
+  // 있는지 눈으로 바로 확인할 수 있게(0개일 때만 뜨는 --- 진단 정보 ---와 별개).
+  const traitItems = result.items.filter((i) => i.category === "trait");
+  console.log(`\n상징(trait) 아이템 ${traitItems.length}개 파싱됨:`);
+  for (const i of traitItems) {
+    const descSnippet = i.officialDesc.replace(/\s+/g, " ").slice(0, 60);
+    console.log(`  - ${i.name} (${i.apiName}): ${descSnippet}${i.officialDesc.length > 60 ? "..." : ""}`);
+  }
+  if (result.emblemLikeOutsideFilter.length > 0) {
+    console.warn(
+      `\n주의: apiName/이름에 "emblem"/"상징"이 들어있지만 TFT_Item_ 접두어 필터에는 안 걸려서 ` +
+        `위 목록에서 빠진 항목 ${result.emblemLikeOutsideFilter.length}개:`
+    );
+    for (const { apiName, name } of result.emblemLikeOutsideFilter) console.warn(`  - ${name} (${apiName})`);
+  }
+
   const categoryWarnings = result.warnings.filter((w) => w.startsWith("분류를 판별할 수 없어"));
   const otherWarnings = result.warnings.filter((w) => !w.startsWith("분류를 판별할 수 없어"));
 
