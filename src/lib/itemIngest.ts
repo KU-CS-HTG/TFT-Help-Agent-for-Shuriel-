@@ -1,26 +1,55 @@
 // 아이템(일반/유물/찬란/상징) 데이터 수집 로직. src/lib/ingest.ts(증강체 ingest)와
-// 같은 Community Dragon ko_kr.json의 data.items 배열을 공유해서 읽습니다
-// (실측 확인: 증강체도 apiName이 "DA_"로 시작하는 data.items 항목이라, 실제
-// 아이템은 같은 배열에서 apiName이 "TFT_Item_"류 접두어로 시작하는 항목들입니다.
-// 세트마다 "TFT9_Item_" 처럼 세트 번호가 붙는 경우도 있어 정규식으로 잡습니다).
+// 같은 Community Dragon ko_kr.json의 data.items 배열을 공유해서 읽습니다.
 //
-// 주의: 이 파일도 증강체 ingest.ts와 마찬가지로 이 샌드박스 환경에서는
-// raw.communitydragon.org 접근이 막혀 있어 실제 응답으로 검증하지 못했습니다.
-// 일반/유물/찬란/상징 구분은 apiName에 "Radiant"/"Artifact"/"Emblem"이
-// 들어있는지로만 최선의 추정을 하고, 나머지는 전부 "일반"으로 분류합니다
-// (조합 재료 개수로 완성품 여부를 걸러내려던 이전 로직은 실제 필드명을
-// 확인하지 못한 채 항목을 통째로 누락시키는 부작용이 있어 제거했습니다 —
-// 이제는 놓치는 것보다 잘못 분류된 항목이 섞이는 쪽이 낫고, 후자는 아이템
-// 상세 모달의 삭제 버튼으로 사용자가 직접 정리할 수 있습니다). 분류가
-// 틀렸거나 npm run fetch:items 실행 시 파싱된 아이템 수가 이상하면, 콘솔에
-// 출력되는 "--- 진단 정보 ---" 블록을 보고 이 파일의 guessCategory() 근처를
-// 조정하세요.
+// 실측 확인(사용자가 npm run fetch:items를 로컬에서 돌려 확인해줌, 2026-09):
+// - 일반/유물/찬란 아이템은 "TFT_Item_..." / "TFT<세트번호>_Item_..." 형태의
+//   에버그린(세트 무관, 매 시즌 재사용) apiName을 씁니다.
+// - 반면 특성 상징(Emblem)은 시즌마다 통째로 갈아엎이는 특성 이름을 그대로
+//   아이템화한 거라 세트마다 새로 나오고, apiName도 완전히 다른 규칙을
+//   씁니다: 이번 세트(18)는 "DA_18_Emblem<특성이름>"(증강체와 같은 "DA_"
+//   네임스페이스) 형태고, 과거 세트들은 "TFT<세트번호>_Item_...EmblemItem"
+//   / "TFT<세트번호>_Augment_...Emblem"(세트 7의 왕관/문장류 증강체) 등
+//   제각각입니다. CDragon의 data.items 배열에는 지금 세트뿐 아니라 3, 7,
+//   13~17 등 모든 과거 세트의 상징이 전부 같이 들어있어서, "apiName에
+//   Emblem이 들어가면 상징"이라는 규칙만으로는 이번 시즌에 안 쓰는 상징
+//   수십 개가 같이 섞여 들어옵니다(실측: 133개 중 대부분이 과거 세트).
+//   그래서 상징만은 apiName에 박힌 세트 번호가 CURRENT_SET_NUMBER와 같거나
+//   아예 세트 번호가 없는 것만 인정합니다 (isCurrentOrSetlessEmblem 참고).
+// - "TFT7_Augment_XXXEmblem" 류는 실제로는 증강체(다른 인제스트 경로에서
+//   이미 "DA_" 접두어 기준으로 따로 처리됨)라서 "_Augment_"가 들어간
+//   apiName은 상징 후보에서 제외합니다.
+//
+// 분류가 다시 이상해지거나 npm run fetch:items 실행 시 파싱된 아이템 수가
+// 이상하면, 콘솔에 출력되는 상징 목록 / "--- 진단 정보 ---" 블록을 보고 이
+// 파일의 guessCategory() / isCurrentOrSetlessEmblem() 근처를 조정하세요.
 
 import { CURRENT_SET_NUMBER, isItemCategory, type ItemCategory } from "./constants";
 import { fetchCDragonTftData, fetchLatestPatchVersion, mapWithConcurrency, resolveIconUrl, stripHtmlTags } from "./ingest";
 import type { getSupabaseServerClient } from "./supabase";
 
 const TFT_ITEM_API_NAME = /^TFT\d*_Item_/;
+
+/** apiName에 "Emblem"이 들어가지만, 세트 7의 왕관/문장류 증강체(TFT7_Augment_*Emblem*)는 아이템이 아니라서 제외한다. */
+function isEmblemApiName(apiName: string): boolean {
+  return /emblem/i.test(apiName) && !/_augment_/i.test(apiName);
+}
+
+/** apiName에 박힌 숫자들(대체로 세트 번호)을 뽑는다. 예: "DA_18_EmblemLunar" → [18]. */
+function extractSetNumbers(apiName: string): number[] {
+  return (apiName.match(/\d+/g) ?? []).map(Number);
+}
+
+/**
+ * 상징류 apiName이 "이번 세트" 것인지 판단한다. apiName에 세트 번호가 아예
+ * 없으면(드묾) 세트 무관으로 보고 통과시키고, 있으면 그 번호들 중 하나라도
+ * 현재 세트와 일치해야 통과한다. 다른 세트 번호만 박혀 있으면(예:
+ * "TFT15_Item_ShotcallerEmblemItem") 지금 시즌에 쓰이지 않는 옛날 상징으로
+ * 보고 제외한다.
+ */
+function isCurrentOrSetlessEmblem(apiName: string, currentSet: number): boolean {
+  const nums = extractSetNumbers(apiName);
+  return nums.length === 0 || nums.includes(currentSet);
+}
 
 export interface ParsedItem {
   apiName: string;
@@ -39,9 +68,10 @@ export interface ItemIngestResult {
   /** 분류를 못해 제외된 아이템 (data/item-category-overrides.json에 직접 채울 수 있도록) */
   unresolvedForOverride: Array<{ apiName: string; name: string }>;
   /**
-   * apiName 또는 name에 "emblem"/"상징"이 들어있지만 TFT_ITEM_API_NAME 접두어
-   * 필터에는 안 걸린 항목들 — 상징 아이템이 통째로 안 보일 때, 접두어
-   * 정규식이 문제인지 확인하는 용도로 매번 계산한다 (비용이 적어 무조건 포함).
+   * apiName 또는 name에 "emblem"/"상징"이 들어있지만 최종 후보 목록에는 안
+   * 들어간 항목들. 다른 세트 상징(의도적 제외)과 왕관/문장류 증강체는 이미
+   * 걸러내고 남은 것만 들어있어서, 평소엔 비어 있는 게 정상이다 — 여기에
+   * 뭔가 뜨면 새로운 예외 케이스가 생긴 것이니 확인이 필요하다.
    */
   emblemLikeOutsideFilter: Array<{ apiName: string; name: string }>;
   /** items가 0개일 때만 채워지는 진단 정보 */
@@ -76,19 +106,27 @@ export async function fetchAndParseItems(options?: {
   const data = await fetchCDragonTftData();
   const itemsArray = Array.isArray(data.items) ? (data.items as Array<Record<string, unknown>>) : [];
 
-  const tftItems = itemsArray.filter(
-    (raw) => typeof raw.apiName === "string" && TFT_ITEM_API_NAME.test(raw.apiName as string)
-  );
+  function isItemCandidate(apiName: string): boolean {
+    if (isEmblemApiName(apiName)) return isCurrentOrSetlessEmblem(apiName, setNumber);
+    return TFT_ITEM_API_NAME.test(apiName);
+  }
 
+  const tftItems = itemsArray.filter((raw) => typeof raw.apiName === "string" && isItemCandidate(raw.apiName));
+
+  // 상징류인데 위 규칙으로도 못 걸러진(제외되지도, 포함되지도 않은 애매한)
+  // 항목이 있는지 확인하는 진단용 — 다른 세트라서 "의도적으로 제외"된
+  // 항목은 여기 안 뜨고, 그 외에 정말 이상한 케이스만 남는다.
   const tftItemApiNames = new Set(tftItems.map((raw) => raw.apiName as string));
   const emblemLikeOutsideFilter: Array<{ apiName: string; name: string }> = [];
   for (const raw of itemsArray) {
     const apiName = raw.apiName;
     if (typeof apiName !== "string" || tftItemApiNames.has(apiName)) continue;
     const name = typeof raw.name === "string" ? raw.name : "";
-    if (/emblem/i.test(apiName) || /emblem/i.test(name) || name.includes("상징")) {
-      emblemLikeOutsideFilter.push({ apiName, name: name || apiName });
-    }
+    const looksLikeEmblem = /emblem/i.test(apiName) || /emblem/i.test(name) || name.includes("상징");
+    if (!looksLikeEmblem) continue;
+    if (isEmblemApiName(apiName) && !isCurrentOrSetlessEmblem(apiName, setNumber)) continue; // 다른 세트 상징 — 의도적 제외
+    if (/_augment_/i.test(apiName)) continue; // 세트 7 왕관/문장류 증강체 — 아이템이 아님
+    emblemLikeOutsideFilter.push({ apiName, name: name || apiName });
   }
 
   const parsed: ParsedItem[] = [];

@@ -71,8 +71,9 @@ async function main() {
   }
   if (result.emblemLikeOutsideFilter.length > 0) {
     console.warn(
-      `\n주의: apiName/이름에 "emblem"/"상징"이 들어있지만 TFT_Item_ 접두어 필터에는 안 걸려서 ` +
-        `위 목록에서 빠진 항목 ${result.emblemLikeOutsideFilter.length}개:`
+      `\n주의: apiName/이름에 "emblem"/"상징"이 들어있지만 위 목록에는 없는 항목이 ` +
+        `${result.emblemLikeOutsideFilter.length}개 있습니다(다른 세트 상징/증강체 제외 규칙을 이미 적용하고 남은 것들이라 ` +
+        `평소엔 0개가 정상 — 여기 뜨면 새로운 예외 케이스일 수 있으니 확인해주세요):`
     );
     for (const { apiName, name } of result.emblemLikeOutsideFilter) console.warn(`  - ${name} (${apiName})`);
   }
