@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { ITEM_CATEGORIES, ITEM_CATEGORY_LABEL, ITEM_TIERS, type ItemCategory, type ItemTier } from "@/lib/constants";
 import type { ItemWithExtras } from "@/lib/types";
+import { deleteItemsAction } from "@/lib/actions/itemActions";
 import { updateItemPlacementAction } from "@/lib/actions/itemTierActions";
 import ItemTierRow from "./ItemTierRow";
 import ItemUnplacedPool from "./ItemUnplacedPool";
@@ -20,6 +21,8 @@ export default function ItemTierBoard({ initialItems }: Props) {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+  const [bulkPending, startBulkTransition] = useTransition();
+  const [bulkError, setBulkError] = useState<string | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -93,6 +96,28 @@ export default function ItemTierBoard({ initialItems }: Props) {
     setSelectedId(null);
   }
 
+  function handleBulkDeleteUnplaced() {
+    if (unplaced.length === 0) return;
+    const label = ITEM_CATEGORY_LABEL[category];
+    if (
+      !window.confirm(
+        `"${label}" 탭에서 티어에 배치하지 않은 아이템 ${unplaced.length}개를 모두 삭제할까요? 되돌릴 수 없습니다.`
+      )
+    )
+      return;
+
+    setBulkError(null);
+    const idsToDelete = new Set(unplaced.map((i) => i.id));
+    startBulkTransition(async () => {
+      try {
+        await deleteItemsAction([...idsToDelete]);
+        setItems((prev) => prev.filter((i) => !idsToDelete.has(i.id)));
+      } catch (err) {
+        setBulkError(err instanceof Error ? err.message : "삭제 실패");
+      }
+    });
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex flex-wrap gap-2">
@@ -110,7 +135,19 @@ export default function ItemTierBoard({ initialItems }: Props) {
         ))}
       </div>
 
-      <SearchBar value={search} onChange={setSearch} placeholder="아이템 이름 검색..." />
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <SearchBar value={search} onChange={setSearch} placeholder="아이템 이름 검색..." />
+        <button
+          type="button"
+          disabled={bulkPending || unplaced.length === 0}
+          onClick={handleBulkDeleteUnplaced}
+          title="이 카테고리에서 티어에 배치하지 않은(미분류) 아이템을 한 번에 삭제합니다."
+          className="rounded-lg bg-neutral-800 px-3 py-2 text-sm text-red-300 hover:bg-neutral-700 disabled:opacity-50"
+        >
+          {bulkPending ? "삭제 중..." : `미분류 아이템 일괄 삭제 (${unplaced.length})`}
+        </button>
+      </div>
+      {bulkError && <p className="text-sm text-red-400">{bulkError}</p>}
 
       {items.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center text-neutral-400">
