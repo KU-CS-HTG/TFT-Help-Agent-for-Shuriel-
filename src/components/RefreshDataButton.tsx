@@ -15,7 +15,7 @@ export default function RefreshDataButton() {
         const { augments, items } = summary;
         setMessage(
           `완료: 증강체 ${augments.total}개(실버 ${augments.bySilverGoldPrism.silver}/골드 ${augments.bySilverGoldPrism.gold}/프리즘 ${augments.bySilverGoldPrism.prism}), ` +
-            `아이템 ${items.total}개(일반 ${items.byCategory.normal}/유물 ${items.byCategory.artifact}/찬란 ${items.byCategory.radiant}), ` +
+            `아이템 ${items.total}개(일반 ${items.byCategory.normal}/유물 ${items.byCategory.artifact}/찬란 ${items.byCategory.radiant}/상징 ${items.byCategory.trait}), ` +
             `아이콘 못찾음 ${augments.iconsMissing + items.iconsMissing}건`
         );
       } catch (err) {

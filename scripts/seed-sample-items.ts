@@ -13,7 +13,7 @@ interface SampleItem {
   apiName: string;
   name: string;
   officialDesc: string;
-  category: "normal" | "artifact" | "radiant";
+  category: "normal" | "artifact" | "radiant" | "trait";
 }
 
 async function main() {
