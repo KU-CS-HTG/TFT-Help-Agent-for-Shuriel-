@@ -3,9 +3,9 @@
 import { useState, useTransition } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ITEM_CATEGORY_LABEL } from "@/lib/constants";
+import { ITEM_CATEGORIES, ITEM_CATEGORY_LABEL, type ItemCategory } from "@/lib/constants";
 import type { ItemWithExtras } from "@/lib/types";
-import { deleteItemAction } from "@/lib/actions/itemActions";
+import { deleteItemAction, updateItemCategoryAction } from "@/lib/actions/itemActions";
 import { updateItemNoteAction } from "@/lib/actions/itemNoteActions";
 import { UNSAVED_CHANGES_MESSAGE, useRegisterDirty } from "@/lib/unsavedChanges";
 
@@ -60,6 +60,19 @@ export default function ItemModal({ item, onClose, onUpdate, onDelete }: Props) 
     });
   }
 
+  function handleCategoryChange(category: ItemCategory) {
+    if (category === item.category) return;
+    setError(null);
+    startTransition(async () => {
+      try {
+        const updated = await updateItemCategoryAction(item.id, category);
+        onUpdate({ ...item, ...updated, placement: null });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "분류 변경 실패");
+      }
+    });
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={handleClose}>
       <div
@@ -100,6 +113,30 @@ export default function ItemModal({ item, onClose, onUpdate, onDelete }: Props) 
               닫기
             </button>
           </div>
+        </div>
+
+        <div className="mb-4 rounded-lg bg-neutral-950 p-3">
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-600">분류</p>
+          <div className="flex flex-wrap gap-2">
+            {ITEM_CATEGORIES.map((c) => (
+              <button
+                key={c}
+                type="button"
+                disabled={pending}
+                onClick={() => handleCategoryChange(c)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 ${
+                  item.category === c
+                    ? "bg-indigo-600 text-white"
+                    : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
+                }`}
+              >
+                {ITEM_CATEGORY_LABEL[c]}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-[10px] text-neutral-600">
+            분류를 바꾸면 이 아이템의 티어 배치는 초기화됩니다(카테고리마다 티어보드가 독립적이라서).
+          </p>
         </div>
 
         <div className="mb-4 rounded-lg bg-neutral-950 p-3">
