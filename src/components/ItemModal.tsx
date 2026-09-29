@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { ITEM_CATEGORIES, ITEM_CATEGORY_LABEL, type ItemCategory } from "@/lib/constants";
 import type { ItemWithExtras } from "@/lib/types";
 import { deleteItemAction, updateItemCategoryAction } from "@/lib/actions/itemActions";
+import { updateItemDescriptionAction } from "@/lib/actions/itemDescriptionActions";
 import { updateItemNoteAction } from "@/lib/actions/itemNoteActions";
 import { UNSAVED_CHANGES_MESSAGE, useRegisterDirty } from "@/lib/unsavedChanges";
 
@@ -18,11 +19,14 @@ interface Props {
 
 export default function ItemModal({ item, onClose, onUpdate, onDelete }: Props) {
   const [noteContent, setNoteContent] = useState(item.note?.content ?? "");
+  const [descContent, setDescContent] = useState(item.official_desc);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const dirty = noteContent !== (item.note?.content ?? "");
+  const noteDirty = noteContent !== (item.note?.content ?? "");
+  const descDirty = descContent !== item.official_desc;
+  const dirty = noteDirty || descDirty;
   useRegisterDirty(`item-modal-${item.id}`, dirty);
 
   function handleClose() {
@@ -56,6 +60,18 @@ export default function ItemModal({ item, onClose, onUpdate, onDelete }: Props) 
         onDelete(item.id);
       } catch (err) {
         setError(err instanceof Error ? err.message : "삭제 실패");
+      }
+    });
+  }
+
+  function saveDescription() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const updated = await updateItemDescriptionAction(item.id, descContent);
+        onUpdate({ ...item, ...updated });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "저장 실패");
       }
     });
   }
@@ -144,10 +160,31 @@ export default function ItemModal({ item, onClose, onUpdate, onDelete }: Props) 
         </div>
 
         <div className="mb-4 rounded-lg bg-neutral-950 p-3">
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-600">아이템 능력치 설명</p>
-          <p className="whitespace-pre-wrap text-sm text-neutral-300">
-            {item.official_desc.trim() ? item.official_desc : "설명 없음"}
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-600">
+            아이템 능력치 설명
+            {item.official_desc_overridden && (
+              <span className="ml-2 normal-case text-indigo-400">(직접 수정됨)</span>
+            )}
           </p>
+          <p className="mb-2 text-[10px] text-neutral-600">
+            @ArmorPerDamage@ 같은 @ 표시는 게임 데이터의 원본 변수라 자동으로 숫자가 채워지지 않습니다. 필요하면
+            아래에서 직접 실제 값으로 고쳐서 저장하세요.
+          </p>
+          <textarea
+            value={descContent}
+            onChange={(e) => setDescContent(e.target.value)}
+            placeholder="설명 없음"
+            rows={4}
+            className="w-full resize-y rounded-lg border border-neutral-800 bg-neutral-900 p-2 text-xs text-neutral-300 outline-none focus:border-indigo-500"
+          />
+          <button
+            type="button"
+            disabled={pending || !descDirty}
+            onClick={saveDescription}
+            className="mt-2 rounded-lg bg-neutral-800 px-3 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-700 disabled:opacity-50"
+          >
+            저장
+          </button>
         </div>
 
         <div>

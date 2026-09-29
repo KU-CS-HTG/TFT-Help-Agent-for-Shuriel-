@@ -94,8 +94,10 @@ export type Item = {
   api_name: string;
   name: string;
   icon_url: string | null;
-  /** 게임 내 실제 능력치 설명 (사용자가 직접 입력하지 않음) */
+  /** 게임 내 실제 능력치 설명 (Community Dragon 원본, 직접 수정 가능) */
   official_desc: string;
+  /** 사용자가 능력치 설명을 직접 수정했는지 — true면 새로고침이 원본으로 덮어쓰지 않음 */
+  official_desc_overridden: boolean;
   category: ItemCategory;
   /** 사용자가 아이템 모달에서 분류를 직접 옮겼는지 — true면 새로고침이 자동 추정으로 덮어쓰지 않음 */
   category_overridden: boolean;
