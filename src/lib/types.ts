@@ -97,6 +97,8 @@ export type Item = {
   /** 게임 내 실제 능력치 설명 (사용자가 직접 입력하지 않음) */
   official_desc: string;
   category: ItemCategory;
+  /** 사용자가 아이템 모달에서 분류를 직접 옮겼는지 — true면 새로고침이 자동 추정으로 덮어쓰지 않음 */
+  category_overridden: boolean;
   set_number: number;
   patch_version: string;
   created_at: string;

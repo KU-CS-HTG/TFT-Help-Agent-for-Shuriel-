@@ -196,6 +196,25 @@ export async function upsertItems(
     return { item, iconUrl };
   });
 
+  // 사용자가 아이템 모달에서 분류를 직접 옮긴 아이템은 새로고침이 그 값을
+  // 덮어쓰면 안 된다. category_overridden=true인 행들의 현재 category
+  // 값을 미리 읽어와서, 이번 upsert 페이로드에도 같은 값을 그대로 넣어
+  // 사실상 변경 없이 유지되게 한다 (augments.description_game_overridden과
+  // 동일한 패턴).
+  const apiNames = withIcons.map(({ item }) => item.apiName);
+  const overriddenCategories = new Map<string, ItemCategory>();
+  if (apiNames.length > 0) {
+    const { data: existing, error: existingError } = await supabase
+      .from("items")
+      .select("api_name, category, category_overridden")
+      .in("api_name", apiNames);
+    if (existingError) throw new Error(existingError.message);
+    for (const row of existing ?? []) {
+      const r = row as { api_name: string; category: ItemCategory; category_overridden: boolean };
+      if (r.category_overridden) overriddenCategories.set(r.api_name, r.category);
+    }
+  }
+
   const warnings = [...result.warnings];
 
   const rows = withIcons.map(({ item, iconUrl }) => ({
@@ -203,7 +222,7 @@ export async function upsertItems(
     name: item.name,
     icon_url: iconUrl,
     official_desc: item.officialDesc,
-    category: item.category,
+    category: overriddenCategories.get(item.apiName) ?? item.category,
     set_number: result.setNumber,
     patch_version: result.patchVersion,
   }));

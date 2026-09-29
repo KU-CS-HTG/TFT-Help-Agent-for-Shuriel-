@@ -116,7 +116,10 @@ export default function ItemModal({ item, onClose, onUpdate, onDelete }: Props) 
         </div>
 
         <div className="mb-4 rounded-lg bg-neutral-950 p-3">
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-600">분류</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-600">
+            분류
+            {item.category_overridden && <span className="ml-2 normal-case text-indigo-400">(직접 수정됨)</span>}
+          </p>
           <div className="flex flex-wrap gap-2">
             {ITEM_CATEGORIES.map((c) => (
               <button
@@ -135,7 +138,8 @@ export default function ItemModal({ item, onClose, onUpdate, onDelete }: Props) 
             ))}
           </div>
           <p className="mt-2 text-[10px] text-neutral-600">
-            분류를 바꾸면 이 아이템의 티어 배치는 초기화됩니다(카테고리마다 티어보드가 독립적이라서).
+            분류를 바꾸면 이 아이템의 티어 배치는 초기화됩니다(카테고리마다 티어보드가 독립적이라서). 한 번 직접
+            옮긴 분류는 이후 &quot;패치 데이터 새로고침&quot;을 실행해도 자동 분류로 덮어써지지 않습니다.
           </p>
         </div>
 
