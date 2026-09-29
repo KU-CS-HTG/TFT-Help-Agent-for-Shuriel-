@@ -38,6 +38,12 @@ export interface ItemIngestResult {
   warnings: string[];
   /** 분류를 못해 제외된 아이템 (data/item-category-overrides.json에 직접 채울 수 있도록) */
   unresolvedForOverride: Array<{ apiName: string; name: string }>;
+  /**
+   * apiName 또는 name에 "emblem"/"상징"이 들어있지만 TFT_ITEM_API_NAME 접두어
+   * 필터에는 안 걸린 항목들 — 상징 아이템이 통째로 안 보일 때, 접두어
+   * 정규식이 문제인지 확인하는 용도로 매번 계산한다 (비용이 적어 무조건 포함).
+   */
+  emblemLikeOutsideFilter: Array<{ apiName: string; name: string }>;
   /** items가 0개일 때만 채워지는 진단 정보 */
   debug?: {
     topLevelKeys: string[];
@@ -73,6 +79,17 @@ export async function fetchAndParseItems(options?: {
   const tftItems = itemsArray.filter(
     (raw) => typeof raw.apiName === "string" && TFT_ITEM_API_NAME.test(raw.apiName as string)
   );
+
+  const tftItemApiNames = new Set(tftItems.map((raw) => raw.apiName as string));
+  const emblemLikeOutsideFilter: Array<{ apiName: string; name: string }> = [];
+  for (const raw of itemsArray) {
+    const apiName = raw.apiName;
+    if (typeof apiName !== "string" || tftItemApiNames.has(apiName)) continue;
+    const name = typeof raw.name === "string" ? raw.name : "";
+    if (/emblem/i.test(apiName) || /emblem/i.test(name) || name.includes("상징")) {
+      emblemLikeOutsideFilter.push({ apiName, name: name || apiName });
+    }
+  }
 
   const parsed: ParsedItem[] = [];
   // guessCategory()가 이제 항상 값을 반환하기 때문에 실질적으로 채워지지
@@ -119,6 +136,7 @@ export async function fetchAndParseItems(options?: {
     items: parsed,
     warnings,
     unresolvedForOverride,
+    emblemLikeOutsideFilter,
     debug,
   };
 }
