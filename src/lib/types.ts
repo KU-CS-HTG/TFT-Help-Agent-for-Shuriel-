@@ -1,4 +1,4 @@
-import type { Rarity, Stage, Tier } from "./constants";
+import type { ItemCategory, ItemTier, Rarity, Stage, Tier } from "./constants";
 
 // 주의: 아래 타입들은 일부러 `interface`가 아닌 `type`으로 선언합니다.
 // database.types.ts에서 supabase-js의 createClient<Database> 제네릭에 넘길 때
@@ -86,4 +86,40 @@ export type DeckSubImage = {
 
 export type DeckWithImages = Deck & {
   subImages: DeckSubImage[];
+};
+
+/** 아이템 원본 데이터 (Community Dragon에서 가져와 캐싱, 일반/유물/찬란 구분 없이 공용) */
+export type Item = {
+  id: string;
+  api_name: string;
+  name: string;
+  icon_url: string | null;
+  /** 게임 내 실제 능력치 설명 (사용자가 직접 입력하지 않음) */
+  official_desc: string;
+  category: ItemCategory;
+  set_number: number;
+  patch_version: string;
+  created_at: string;
+  updated_at: string;
+};
+
+/** 아이템 티어 배치. 아이템은 카테고리 하나에만 속하므로 스테이지 개념 없이 아이템당 하나. */
+export type ItemTierPlacement = {
+  id: string;
+  item_id: string;
+  tier: ItemTier;
+  position: number;
+  updated_at: string;
+};
+
+/** 아이템별 개인 메모 (게임 원본 설명과 별개) */
+export type ItemNote = {
+  item_id: string;
+  content: string;
+  updated_at: string;
+};
+
+export type ItemWithExtras = Item & {
+  placement: ItemTierPlacement | null;
+  note: ItemNote | null;
 };

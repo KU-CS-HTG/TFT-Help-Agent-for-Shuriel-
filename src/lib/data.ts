@@ -9,6 +9,10 @@ import type {
   Deck,
   DeckSubImage,
   DeckWithImages,
+  Item,
+  ItemNote,
+  ItemTierPlacement,
+  ItemWithExtras,
   StageNote,
   TierPlacement,
 } from "./types";
@@ -123,5 +127,34 @@ export async function getAllDecks(): Promise<DeckWithImages[]> {
   return (decks as Deck[]).map((d) => ({
     ...d,
     subImages: subImagesMap.get(d.id) ?? [],
+  }));
+}
+
+/** 아이템 티어리스트 전체(일반/유물/찬란 공용, 카테고리별로 클라이언트에서 나눠 씀)를 가져온다. */
+export async function getAllItemsWithExtras(): Promise<ItemWithExtras[]> {
+  const supabase = getSupabaseServerClient();
+
+  const { data: items, error } = await supabase.from("items").select("*").order("name");
+  if (error) throw new Error(error.message);
+  if (!items || items.length === 0) return [];
+
+  const ids = (items as Item[]).map((i) => i.id);
+
+  const [placementsRes, notesRes] = await Promise.all([
+    supabase.from("item_tier_placements").select("*").in("item_id", ids),
+    supabase.from("item_notes").select("*").in("item_id", ids),
+  ]);
+  if (placementsRes.error) throw new Error(placementsRes.error.message);
+  if (notesRes.error) throw new Error(notesRes.error.message);
+
+  const placementMap = new Map<string, ItemTierPlacement>(
+    ((placementsRes.data as ItemTierPlacement[]) ?? []).map((p) => [p.item_id, p])
+  );
+  const noteMap = new Map<string, ItemNote>(((notesRes.data as ItemNote[]) ?? []).map((n) => [n.item_id, n]));
+
+  return (items as Item[]).map((i) => ({
+    ...i,
+    placement: placementMap.get(i.id) ?? null,
+    note: noteMap.get(i.id) ?? null,
   }));
 }

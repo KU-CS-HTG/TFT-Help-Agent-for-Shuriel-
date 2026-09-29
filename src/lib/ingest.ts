@@ -47,8 +47,17 @@ export interface IngestResult {
   };
 }
 
-function stripHtmlTags(input: string): string {
+export function stripHtmlTags(input: string): string {
   return input.replace(/<[^>]*>/g, "").trim();
+}
+
+/** ko_kr.json 전체를 가져온다 (증강체/아이템 ingest가 공유). */
+export async function fetchCDragonTftData(): Promise<Record<string, unknown>> {
+  const res = await fetch(CDRAGON_JSON_URL);
+  if (!res.ok) {
+    throw new Error(`Community Dragon 데이터를 가져오지 못했습니다 (HTTP ${res.status}).`);
+  }
+  return (await res.json()) as Record<string, unknown>;
 }
 
 // CDragon ko_kr.json의 augment 항목(data.items에서 찾아온 객체)에는 등급
@@ -120,11 +129,7 @@ export async function fetchAndParseAugments(options?: {
   const rarityOverrides = options?.rarityOverrides ?? {};
   const warnings: string[] = [];
 
-  const res = await fetch(CDRAGON_JSON_URL);
-  if (!res.ok) {
-    throw new Error(`Community Dragon 데이터를 가져오지 못했습니다 (HTTP ${res.status}).`);
-  }
-  const data = (await res.json()) as Record<string, unknown>;
+  const data = await fetchCDragonTftData();
 
   const setDataArray = (data.setData ?? data.sets ?? []) as Array<Record<string, unknown>>;
 
@@ -313,7 +318,11 @@ export async function fetchAndParseAugments(options?: {
   };
 }
 
-async function mapWithConcurrency<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+export async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
   const results: R[] = new Array(items.length);
   let index = 0;
   async function worker() {

@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { fetchAndParseAugments, upsertAugments, type UpsertSummary } from "@/lib/ingest";
-import { STAGES, isRarity } from "@/lib/constants";
+import { fetchAndParseItems, upsertItems, type ItemUpsertSummary } from "@/lib/itemIngest";
+import { STAGES, isItemCategory, isRarity } from "@/lib/constants";
 import rarityOverridesFile from "../../../data/rarity-overrides.json";
+import itemCategoryOverridesFile from "../../../data/item-category-overrides.json";
 
 // data/rarity-overrides.json은 npm run fetch:augments(CLI)를 로컬에서 돌릴 때
 // 자동으로 채워지고 커밋됩니다. 이 서버 액션은 배포 환경에서도 안전하게
@@ -20,14 +22,32 @@ const rarityOverrides: Record<string, string> = Object.fromEntries(
     .map(([apiName, entry]) => [apiName, entry.rarity as string])
 );
 
-export async function refreshDataAction(): Promise<UpsertSummary> {
-  const result = await fetchAndParseAugments({ rarityOverrides });
+const itemCategoryOverrides: Record<string, string> = Object.fromEntries(
+  Object.entries(itemCategoryOverridesFile.entries as Record<string, { name: string; category: string | null }>)
+    .filter(([, entry]) => isItemCategory(entry.category))
+    .map(([apiName, entry]) => [apiName, entry.category as string])
+);
+
+export interface RefreshSummary {
+  augments: UpsertSummary;
+  items: ItemUpsertSummary;
+}
+
+export async function refreshDataAction(): Promise<RefreshSummary> {
+  const [augmentResult, itemResult] = await Promise.all([
+    fetchAndParseAugments({ rarityOverrides }),
+    fetchAndParseItems({ categoryOverrides: itemCategoryOverrides }),
+  ]);
   const supabase = getSupabaseServerClient();
-  const summary = await upsertAugments(supabase, result);
+  const [augments, items] = await Promise.all([
+    upsertAugments(supabase, augmentResult),
+    upsertItems(supabase, itemResult),
+  ]);
 
   for (const stage of STAGES) {
     revalidatePath(`/${stage}`);
   }
+  revalidatePath("/items");
 
-  return summary;
+  return { augments, items };
 }
