@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useUnsavedChanges } from "@/lib/unsavedChanges";
 
-export default function DecksBackLink() {
+export default function BackLink() {
   const router = useRouter();
   const { confirmLeave } = useUnsavedChanges();
 

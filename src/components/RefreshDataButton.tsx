@@ -12,8 +12,11 @@ export default function RefreshDataButton() {
     startTransition(async () => {
       try {
         const summary = await refreshDataAction();
+        const { augments, items } = summary;
         setMessage(
-          `완료: 총 ${summary.total}개 (실버 ${summary.bySilverGoldPrism.silver} / 골드 ${summary.bySilverGoldPrism.gold} / 프리즘 ${summary.bySilverGoldPrism.prism}), 아이콘 못찾음 ${summary.iconsMissing}건`
+          `완료: 증강체 ${augments.total}개(실버 ${augments.bySilverGoldPrism.silver}/골드 ${augments.bySilverGoldPrism.gold}/프리즘 ${augments.bySilverGoldPrism.prism}), ` +
+            `아이템 ${items.total}개(일반 ${items.byCategory.normal}/유물 ${items.byCategory.artifact}/찬란 ${items.byCategory.radiant}), ` +
+            `아이콘 못찾음 ${augments.iconsMissing + items.iconsMissing}건`
         );
       } catch (err) {
         setMessage(err instanceof Error ? `오류: ${err.message}` : "알 수 없는 오류");

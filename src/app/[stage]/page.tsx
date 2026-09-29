@@ -29,6 +29,13 @@ export default async function StagePage({ params }: { params: Promise<{ stage: s
         <span className="text-sm font-semibold text-neutral-200">플레이할 만한 덱 종류</span>
         <span className="text-neutral-500">→</span>
       </Link>
+      <Link
+        href="/items"
+        className="mx-4 mt-3 flex items-center justify-between rounded-xl border border-neutral-800 bg-neutral-900 p-3 hover:border-indigo-600 hover:bg-neutral-800"
+      >
+        <span className="text-sm font-semibold text-neutral-200">아이템 티어리스트</span>
+        <span className="text-neutral-500">→</span>
+      </Link>
       <TierBoard stage={stage} initialAugments={augments} allAugments={allAugments} />
     </div>
   );

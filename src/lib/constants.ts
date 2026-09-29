@@ -37,3 +37,20 @@ export const TIER_COLOR: Record<Tier, string> = {
 
 export const CURRENT_SET_NUMBER = 18;
 export const CURRENT_PATCH_VERSION = "18.2b";
+
+export const ITEM_CATEGORIES = ["normal", "artifact", "radiant"] as const;
+export type ItemCategory = (typeof ITEM_CATEGORIES)[number];
+
+export function isItemCategory(value: unknown): value is ItemCategory {
+  return typeof value === "string" && (ITEM_CATEGORIES as readonly string[]).includes(value);
+}
+
+export const ITEM_CATEGORY_LABEL: Record<ItemCategory, string> = {
+  normal: "일반 아이템",
+  artifact: "유물 아이템",
+  radiant: "찬란한 아이템",
+};
+
+// 아이템 티어보드는 증강체(S~D)와 달리 S~C 4단계만 씁니다.
+export const ITEM_TIERS = ["S", "A", "B", "C"] as const;
+export type ItemTier = (typeof ITEM_TIERS)[number];

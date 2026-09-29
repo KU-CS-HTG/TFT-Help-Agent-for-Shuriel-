@@ -1,0 +1,4 @@
+{
+  "_note": "Community Dragon 아이템 데이터에서 분류(일반/유물/찬란)를 자동으로 판별하지 못한 항목이 npm run fetch:items 실행 시 이 파일에 자동으로 추가됩니다 (category: null). 실제 분류를 아신다면 'normal'(일반) / 'artifact'(유물) / 'radiant'(찬란) 중 하나로 채운 뒤 다시 npm run fetch:items 를 실행하면 반영됩니다.",
+  "entries": {}
+}

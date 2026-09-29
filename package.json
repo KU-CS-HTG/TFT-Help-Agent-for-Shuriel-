@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "fetch:augments": "tsx scripts/fetch-augments.ts",
-    "seed:sample": "tsx scripts/seed-sample.ts"
+    "seed:sample": "tsx scripts/seed-sample.ts",
+    "fetch:items": "tsx scripts/fetch-items.ts",
+    "seed:sample-items": "tsx scripts/seed-sample-items.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

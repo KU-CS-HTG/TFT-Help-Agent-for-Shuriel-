@@ -15,13 +15,18 @@ TFT 개인 맞춤형 도우미 에이전트를 실행하기 위한 설정 순서
   명시된 세트 번호가 다르면 제외합니다.
 - **증강체 등급(실버/골드/프리즘) 정보는 이 데이터에 아예 없습니다.** 그래서
   `data/rarity-overrides.json`으로 사람이 직접 채우는 방식을 씁니다 (4-1번 참고).
+- **아이템(일반/유물/찬란) 분류도 마찬가지로 실제 응답으로 검증하지 못했습니다.**
+  `src/lib/itemIngest.ts`의 `guessCategory()`는 apiName에 "Radiant"/"Artifact"가
+  포함되어 있는지, 조합 재료 배열(`from`/`composition`/`recipe` 중 있는 필드) 길이가
+  2개 이상인지로 최선의 추정만 합니다. 분류를 못한 아이템은 `data/item-category-overrides.json`으로
+  사람이 직접 채우는 방식을 씁니다 (4-2번 참고).
 
-여전히 이상하게 동작하면 `npm run fetch:augments` 콘솔 출력(특히 `--- 진단 정보 ---`
-블록)을 보여주시면 계속 고칠 수 있습니다.
+여전히 이상하게 동작하면 `npm run fetch:augments` / `npm run fetch:items` 콘솔
+출력(특히 `--- 진단 정보 ---` 블록)을 보여주시면 계속 고칠 수 있습니다.
 
-그 전까지 앱 골격을 확인하려면 `npm run seed:sample` 로 더미 데이터(실제 패치
-데이터 아님, 이름이 전부 "샘플 ○○ 증강체 N" 형태)를 넣어 UI를 테스트할 수
-있습니다.
+그 전까지 앱 골격을 확인하려면 `npm run seed:sample` / `npm run seed:sample-items` 로
+더미 데이터(실제 패치 데이터 아님, 이름이 전부 "샘플 ○○" 형태)를 넣어 UI를
+테스트할 수 있습니다.
 
 ## 1. Supabase 프로젝트 만들기
 
@@ -40,8 +45,10 @@ TFT 개인 맞춤형 도우미 에이전트를 실행하기 위한 설정 순서
    `006_stage_notes.sql` — 스테이지 탭 바로 아래에 표시되는 전체 전략 메모용
    `stage_notes` 테이블을 만듭니다, `007_decks.sql` — 스테이지 구분 없는 공용
    "플레이할 만한 덱 종류" 목록을 관리하는 `decks`/`deck_sub_images` 테이블을
-   만듭니다). 이후 이 프로젝트를 업데이트하면서 새 마이그레이션 파일이
-   추가되면 그때마다 한 번씩 실행하면 됩니다.
+   만듭니다, `008_items.sql` — 일반/유물/찬란 아이템 티어리스트를 관리하는
+   `items`/`item_tier_placements`/`item_notes` 테이블을 만듭니다). 이후 이
+   프로젝트를 업데이트하면서 새 마이그레이션 파일이 추가되면 그때마다 한 번씩
+   실행하면 됩니다.
 3. 프로젝트 설정 > API 에서 다음 값을 확인합니다.
    - `Project URL` → `SUPABASE_URL`
    - `service_role` 비밀 키 → `SUPABASE_SERVICE_ROLE_KEY` (절대 브라우저에 노출되면
@@ -94,12 +101,32 @@ Community Dragon 데이터에는 증강체 등급 정보가 없습니다. `npm r
 npm run seed:sample
 ```
 
+**4-2. 아이템 데이터 채우기**
+
+```bash
+npm run fetch:items
+```
+
+Community Dragon(`ko_kr.json`)의 `data.items` 배열에서 apiName이 `TFT_Item_`으로
+시작하는 항목을 가져와 일반/유물/찬란으로 분류해 DB에 upsert합니다(증강체도 같은
+배열에서 `DA_` 접두어로 찾아오는 것과 같은 원리). 분류를 못 찾은 아이템은
+`data/item-category-overrides.json`의 `entries`에 자동으로 추가됩니다
+(`"category": null`). 파일을 열어 아는 아이템부터 `"normal"`(일반) / `"artifact"`(유물)
+/ `"radiant"`(찬란) 중 하나로 채운 뒤 다시 `npm run fetch:items`를 실행하면 반영됩니다.
+
+더미 데이터로 골격만 확인하려면:
+
+```bash
+npm run seed:sample-items
+```
+
 ## 5. 앱 안의 "패치 데이터 새로고침" 버튼
 
-로그인 후 상단 네비게이션의 "패치 데이터 새로고침" 버튼은 `npm run fetch:augments`와
-동일한 로직을 서버 액션으로 실행합니다. 매번 외부 API를 호출하지 않고, 이 버튼을
-누를 때만 최신 데이터를 가져와 DB에 캐싱합니다. Vercel에 배포한 뒤 새 패치가
-나오면 이 버튼만 누르면 됩니다.
+상단 네비게이션(스테이지 페이지) 또는 아이템 페이지 상단의 "패치 데이터 새로고침"
+버튼은 `npm run fetch:augments` + `npm run fetch:items`와 동일한 로직을 서버
+액션으로 한 번에 실행합니다. 매번 외부 API를 호출하지 않고, 이 버튼을 누를 때만
+최신 데이터를 가져와 DB에 캐싱합니다. Vercel에 배포한 뒤 새 패치가 나오면 이
+버튼만 누르면 됩니다.
 
 ## 6. Vercel 배포
 
@@ -120,10 +147,13 @@ npm run seed:sample
 
 - `src/app/[stage]/page.tsx`: 2-1 / 3-2 / 4-2 티어보드 페이지
 - `src/app/decks/page.tsx`: 스테이지 구분 없는 "플레이할 만한 덱 종류" 페이지
+- `src/app/items/page.tsx`: 일반/유물/찬란 아이템 티어리스트 페이지
 - `src/components/`: 드래그앤드롭 보드, 검색, 상세 모달, 덱 아코디언 등 UI
-- `src/lib/actions/`: 티어 배치·메모·이미지·덱·데이터 새로고침 서버 액션
-- `src/lib/ingest.ts`: Community Dragon 파싱/DB upsert 공통 로직
-- `scripts/fetch-augments.ts`, `scripts/seed-sample.ts`: CLI 데이터 수집/시딩 스크립트
+- `src/lib/actions/`: 티어 배치·메모·이미지·덱·아이템·데이터 새로고침 서버 액션
+- `src/lib/ingest.ts`: Community Dragon 증강체 파싱/DB upsert 로직 (공용 fetch 헬퍼 포함)
+- `src/lib/itemIngest.ts`: Community Dragon 아이템 파싱/DB upsert 로직
+- `scripts/fetch-augments.ts`, `scripts/seed-sample.ts`: CLI 증강체 데이터 수집/시딩 스크립트
+- `scripts/fetch-items.ts`, `scripts/seed-sample-items.ts`: CLI 아이템 데이터 수집/시딩 스크립트
 - `supabase/schema.sql`: DB 스키마 + Storage 버킷
 
 ## 8. 게임 내 설명 직접 수정하기
@@ -170,7 +200,26 @@ Community Dragon 데이터에는 "이 증강체가 2-1/3-2/4-2 중 정확히 어
 5MB 이하 png/jpg/webp만 업로드할 수 있습니다. 덱을 삭제하면 DB 행뿐 아니라
 Storage에 올라간 실제 이미지 파일도 함께 삭제됩니다.
 
-## 11. 알려진 제한사항 / 향후 조정 여지
+## 11. 아이템 티어리스트
+
+각 스테이지 페이지의 "플레이할 만한 덱 종류" 바로 아래에 있는 "아이템 티어리스트"
+박스를 누르면 `/items` 페이지로 이동합니다. 아이템은 스테이지와 무관하게
+게임 전체에서 공통으로 쓰이므로, 덱 목록과 마찬가지로 스테이지 구분 없이 하나로
+공유됩니다.
+
+- 페이지 상단에 **일반 아이템 / 유물 아이템 / 찬란한 아이템** 3개 탭이 있고,
+  탭마다 독립적인 S/A/B/C 티어보드를 가집니다(같은 아이템이 다른 카테고리
+  탭에 동시에 나타나지 않음 — 아이템 하나는 카테고리 하나에만 속합니다).
+- 증강체 티어보드와 동일한 드래그앤드롭 방식으로 아이템 아이콘을 원하는 티어
+  줄로 옮길 수 있고, 배치는 즉시 서버에 저장됩니다.
+- 아이템 아이콘을 클릭하면 모달이 열려 게임 내 실제 능력치 설명(읽기 전용,
+  Community Dragon 원본)과 그 아래 직접 작성하는 메모 칸을 볼 수 있습니다.
+  메모는 작성/수정/삭제가 자유롭고, 비어 있으면 "비어 있음"이라고 표시됩니다
+  (증강체 메모와 동일한 UX).
+- 아이템 데이터를 채우는 방법은 4-2번을 참고하세요. 아이템이 하나도 없거나
+  특정 카테고리에 아이템이 없으면 빈 화면 대신 안내 문구가 표시됩니다.
+
+## 12. 알려진 제한사항 / 향후 조정 여지
 
 - **로그인/비밀번호 기능이 없습니다.** URL만 알면 누구나 접속해 데이터를 보고
   수정할 수 있습니다. 개인 로컬 사용이나, 위 6번의 Vercel Deployment Protection
@@ -184,3 +233,10 @@ Storage에 올라간 실제 이미지 파일도 함께 삭제됩니다.
   없는 증강체가 보이면 `data/rarity-overrides.json`에서 그 항목의 rarity를
   다시 `null`로 바꾸는 대신, 직접 요청해주시면 이름 목록 기반으로 필터링을
   추가하겠습니다.
+- **아이템 일반/유물/찬란 분류 로직도 증강체 등급 판별과 마찬가지로 실제 CDragon
+  응답으로 검증하지 못한 최선의 추정입니다** (0번 참고). `npm run fetch:items`를
+  실행했을 때 분류가 확연히 틀렸거나(예: 유물 아이템이 일반으로 분류됨) 파싱된
+  개수가 예상과 많이 다르면, 콘솔의 `--- 진단 정보 ---` 블록을 보여주시면
+  `src/lib/itemIngest.ts`의 `guessCategory()` 로직을 실제 데이터에 맞게 고치겠습니다.
+- 아이템 티어 배치도 증강체와 마찬가지로 같은 티어 안에서는 등록 순서대로만
+  표시되고, 세부 순서 드래그는 지원하지 않습니다.
