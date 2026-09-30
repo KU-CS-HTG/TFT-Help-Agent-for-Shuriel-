@@ -171,7 +171,7 @@ export async function getAllDecks(): Promise<DeckWithImages[]> {
     const info = augmentInfoMap.get(r.augment_id);
     if (!info) continue; // 증강체가 그 사이 삭제된 경우 등 — 조용히 건너뜀
     const list = recAugmentsMap.get(r.deck_id) ?? [];
-    list.push({ augment_id: r.augment_id, name: info.name, icon_url: info.icon_url });
+    list.push({ augment_id: r.augment_id, name: info.name, icon_url: info.icon_url, recommend_tier: r.recommend_tier });
     recAugmentsMap.set(r.deck_id, list);
   }
 
@@ -180,7 +180,13 @@ export async function getAllDecks(): Promise<DeckWithImages[]> {
     const info = itemInfoMap.get(r.item_id);
     if (!info) continue;
     const list = recItemsMap.get(r.deck_id) ?? [];
-    list.push({ item_id: r.item_id, name: info.name, icon_url: info.icon_url, category: info.category });
+    list.push({
+      item_id: r.item_id,
+      name: info.name,
+      icon_url: info.icon_url,
+      category: info.category,
+      recommend_tier: r.recommend_tier,
+    });
     recItemsMap.set(r.deck_id, list);
   }
 

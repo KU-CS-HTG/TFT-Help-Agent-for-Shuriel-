@@ -55,3 +55,16 @@ export const ITEM_CATEGORY_LABEL: Record<ItemCategory, string> = {
 // 아이템 티어보드는 증강체(S~D)와 달리 S~C 4단계만 씁니다.
 export const ITEM_TIERS = ["S", "A", "B", "C"] as const;
 export type ItemTier = (typeof ITEM_TIERS)[number];
+
+// 덱에 매다는 추천 증강체/아이템은 "강력 추천"/"추천" 두 단계로만 구분합니다.
+export const RECOMMEND_TIERS = ["strong", "normal"] as const;
+export type RecommendTier = (typeof RECOMMEND_TIERS)[number];
+
+export function isRecommendTier(value: unknown): value is RecommendTier {
+  return typeof value === "string" && (RECOMMEND_TIERS as readonly string[]).includes(value);
+}
+
+export const RECOMMEND_TIER_LABEL: Record<RecommendTier, string> = {
+  strong: "강력 추천",
+  normal: "추천",
+};

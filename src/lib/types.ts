@@ -1,4 +1,4 @@
-import type { ItemCategory, ItemTier, Rarity, Stage, Tier } from "./constants";
+import type { ItemCategory, ItemTier, RecommendTier, Rarity, Stage, Tier } from "./constants";
 
 // 주의: 아래 타입들은 일부러 `interface`가 아닌 `type`으로 선언합니다.
 // database.types.ts에서 supabase-js의 createClient<Database> 제네릭에 넘길 때
@@ -93,6 +93,7 @@ export type DeckRecommendedAugment = {
   id: string;
   deck_id: string;
   augment_id: string;
+  recommend_tier: RecommendTier;
   position: number;
   created_at: string;
 };
@@ -102,6 +103,7 @@ export type DeckRecommendedItem = {
   id: string;
   deck_id: string;
   item_id: string;
+  recommend_tier: RecommendTier;
   position: number;
   created_at: string;
 };
@@ -111,6 +113,7 @@ export type DeckRecommendedAugmentDisplay = {
   augment_id: string;
   name: string;
   icon_url: string | null;
+  recommend_tier: RecommendTier;
 };
 
 /** 덱에 드래그해서 추천으로 매달 수 있는 후보 증강체 (미분류 제외하고 미리 걸러서 내려줌) */
@@ -134,6 +137,7 @@ export type DeckRecommendedItemDisplay = {
   name: string;
   icon_url: string | null;
   category: ItemCategory;
+  recommend_tier: RecommendTier;
 };
 
 export type DeckWithImages = Deck & {
