@@ -6,24 +6,27 @@ import type { AugmentLight } from "@/lib/data";
 import type { AugmentWithExtras } from "@/lib/types";
 import { updateStagesAction } from "@/lib/actions/stageMembershipActions";
 import { fetchAugmentForStage } from "@/lib/actions/augmentQueryActions";
+import { deleteAugmentAction } from "@/lib/actions/augmentActions";
 
 interface Props {
   stage: Stage;
   allAugments: AugmentLight[];
   onAdded: (augment: AugmentWithExtras) => void;
   onStagesChanged: (augmentId: string, stages: Stage[]) => void;
+  onDeleted: (augmentId: string) => void;
 }
 
-export default function AddAugmentPanel({ stage, allAugments, onAdded, onStagesChanged }: Props) {
+export default function AddAugmentPanel({ stage, allAugments, onAdded, onStagesChanged, onDeleted }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   const results =
     query.trim().length === 0
-      ? []
+      ? allAugments.filter((a) => a.stages.length === 0).slice(0, 30)
       : allAugments.filter((a) => a.name.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 30);
 
   function handleAdd(augment: AugmentLight) {
@@ -44,6 +47,23 @@ export default function AddAugmentPanel({ stage, allAugments, onAdded, onStagesC
     });
   }
 
+  function handleDelete(augment: AugmentLight) {
+    if (!window.confirm(`"${augment.name}" 증강체를 완전히 삭제할까요? 메모/이미지도 함께 삭제되고 되돌릴 수 없습니다.`))
+      return;
+    setError(null);
+    setDeletingId(augment.id);
+    startTransition(async () => {
+      try {
+        await deleteAugmentAction(augment.id);
+        onDeleted(augment.id);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "삭제 실패");
+      } finally {
+        setDeletingId(null);
+      }
+    });
+  }
+
   return (
     <div className="rounded-xl border border-neutral-800">
       <button
@@ -51,12 +71,15 @@ export default function AddAugmentPanel({ stage, allAugments, onAdded, onStagesC
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between px-3 py-2 text-sm font-semibold text-neutral-300 hover:bg-neutral-900"
       >
-        <span>+ 증강체 추가 (등급 미확인 등 어느 스테이지에도 없는 증강체 찾기)</span>
+        <span>티어리스트 미포함 증강체 모음</span>
         <span className="text-xs text-neutral-500">{open ? "접기" : "펼치기"}</span>
       </button>
 
       {open && (
         <div className="border-t border-neutral-800 p-3">
+          <p className="mb-2 text-[10px] text-neutral-600">
+            검색하지 않으면 어느 스테이지에도 등록되지 않은 증강체가 기본으로 표시됩니다.
+          </p>
           <input
             type="text"
             value={query}
@@ -93,14 +116,26 @@ export default function AddAugmentPanel({ stage, allAugments, onAdded, onStagesC
                     >
                       {alreadyHere ? "이미 있음" : addingId === a.id ? "추가 중..." : "추가"}
                     </button>
+                    {a.stages.length === 0 && (
+                      <button
+                        type="button"
+                        disabled={deletingId === a.id}
+                        onClick={() => handleDelete(a)}
+                        className="rounded bg-neutral-800 px-2 py-1 text-xs text-red-300 hover:bg-neutral-700 disabled:opacity-50"
+                      >
+                        {deletingId === a.id ? "삭제 중..." : "삭제"}
+                      </button>
+                    )}
                   </li>
                 );
               })}
             </ul>
           )}
 
-          {query.trim().length > 0 && results.length === 0 && (
-            <p className="mt-3 text-xs text-neutral-500">일치하는 증강체가 없습니다.</p>
+          {results.length === 0 && (
+            <p className="mt-3 text-xs text-neutral-500">
+              {query.trim().length > 0 ? "일치하는 증강체가 없습니다." : "어느 스테이지에도 없는 증강체가 없습니다."}
+            </p>
           )}
         </div>
       )}

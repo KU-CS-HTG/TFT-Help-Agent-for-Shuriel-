@@ -352,21 +352,29 @@ export async function upsertAugments(
     return { augment, iconUrl };
   });
 
-  // 사용자가 "게임 내 설명"을 직접 수정한 증강체는 새로고침이 그 값을
-  // 덮어쓰면 안 된다. description_game_overridden=true인 행들의 현재
-  // description_game 값을 미리 읽어와서, 이번 upsert 페이로드에도 같은
-  // 값을 그대로 넣어 사실상 변경 없이 유지되게 한다.
+  // 사용자가 "게임 내 설명"이나 아이콘을 직접 수정한 증강체는 새로고침이
+  // 그 값을 덮어쓰면 안 된다. *_overridden=true인 행들의 현재 값을 미리
+  // 읽어와서, 이번 upsert 페이로드에도 같은 값을 그대로 넣어 사실상 변경
+  // 없이 유지되게 한다.
   const apiNames = withIcons.map(({ augment }) => augment.apiName);
   const overriddenDescriptions = new Map<string, string>();
+  const overriddenIcons = new Map<string, string | null>();
   if (apiNames.length > 0) {
     const { data: existing, error: existingError } = await supabase
       .from("augments")
-      .select("api_name, description_game, description_game_overridden")
+      .select("api_name, description_game, description_game_overridden, icon_url, icon_url_overridden")
       .in("api_name", apiNames);
     if (existingError) throw new Error(existingError.message);
     for (const row of existing ?? []) {
-      const r = row as { api_name: string; description_game: string; description_game_overridden: boolean };
+      const r = row as {
+        api_name: string;
+        description_game: string;
+        description_game_overridden: boolean;
+        icon_url: string | null;
+        icon_url_overridden: boolean;
+      };
       if (r.description_game_overridden) overriddenDescriptions.set(r.api_name, r.description_game);
+      if (r.icon_url_overridden) overriddenIcons.set(r.api_name, r.icon_url);
     }
   }
 
@@ -387,7 +395,7 @@ export async function upsertAugments(
         api_name: augment.apiName,
         name: augment.name,
         description_game: overriddenDescriptions.get(augment.apiName) ?? augment.descriptionGame,
-        icon_url: iconUrl,
+        icon_url: overriddenIcons.has(augment.apiName) ? overriddenIcons.get(augment.apiName)! : iconUrl,
         rarity: augment.rarity,
         stage,
         set_number: result.setNumber,

@@ -8,6 +8,7 @@ import { STAGES, type Stage } from "@/lib/constants";
 import { updateNoteAction } from "@/lib/actions/noteActions";
 import { updateGameDescriptionAction } from "@/lib/actions/descriptionActions";
 import { addImagesAction, deleteImageAction } from "@/lib/actions/imageActions";
+import { updateAugmentIconAction } from "@/lib/actions/augmentIconActions";
 import { updateStagesAction } from "@/lib/actions/stageMembershipActions";
 import { UNSAVED_CHANGES_MESSAGE, useRegisterDirty } from "@/lib/unsavedChanges";
 
@@ -26,6 +27,7 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
   const [pending, startTransition] = useTransition();
   const addFileInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const iconInputRef = useRef<HTMLInputElement>(null);
 
   const noteDirty = noteContent !== (augment.note?.content ?? "");
   const descriptionDirty = descriptionContent !== augment.description_game;
@@ -109,6 +111,23 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
     });
   }
 
+  function handleReplaceIcon(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setError(null);
+    const formData = new FormData();
+    formData.set("augmentId", augment.id);
+    formData.set("file", files[0]);
+
+    startTransition(async () => {
+      try {
+        const updated = await updateAugmentIconAction(formData);
+        onUpdate({ ...augment, ...updated });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "교체 실패");
+      }
+    });
+  }
+
   function handleReplaceImage(imageId: string, storagePath: string, files: FileList | null) {
     if (!files || files.length === 0) return;
     setError(null);
@@ -142,18 +161,41 @@ export default function AugmentModal({ augment, stage, onClose, onUpdate }: Prop
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            {augment.icon_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={augment.icon_url} alt={augment.name} className="h-14 w-14 rounded" />
-            ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded bg-neutral-800 text-[10px] text-neutral-500">
-                이미지 없음
-              </div>
-            )}
+            <div className="flex flex-col items-center gap-1">
+              {augment.icon_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={augment.icon_url} alt={augment.name} className="h-14 w-14 rounded" />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded bg-neutral-800 text-[10px] text-neutral-500">
+                  이미지 없음
+                </div>
+              )}
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => iconInputRef.current?.click()}
+                className="text-[10px] text-indigo-400 hover:text-indigo-300 disabled:opacity-50"
+              >
+                교체
+              </button>
+              <input
+                ref={iconInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  handleReplaceIcon(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </div>
             <div>
               <h2 className="text-lg font-semibold text-neutral-100">{augment.name}</h2>
               <p className="text-xs text-neutral-500">
                 {augment.rarity.toUpperCase()} · {augment.patch_version} 기준
+                {augment.icon_url_overridden && (
+                  <span className="ml-2 text-indigo-400">(아이콘 직접 수정됨)</span>
+                )}
               </p>
             </div>
           </div>
