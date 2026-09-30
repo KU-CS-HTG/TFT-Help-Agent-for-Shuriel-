@@ -3,6 +3,8 @@ import type {
   AugmentImage,
   AugmentNote,
   Deck,
+  DeckRecommendedAugment,
+  DeckRecommendedItem,
   DeckSubImage,
   Item,
   ItemNote,
@@ -32,6 +34,8 @@ export interface Database {
       stage_notes: Table<StageNote>;
       decks: Table<Deck>;
       deck_sub_images: Table<DeckSubImage>;
+      deck_recommended_augments: Table<DeckRecommendedAugment>;
+      deck_recommended_items: Table<DeckRecommendedItem>;
       items: Table<Item>;
       item_tier_placements: Table<ItemTierPlacement>;
       item_notes: Table<ItemNote>;
