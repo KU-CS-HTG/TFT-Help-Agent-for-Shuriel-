@@ -2,8 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase";
+import type { RecommendTier } from "@/lib/constants";
 
-export async function addRecommendedAugmentAction(deckId: string, augmentId: string): Promise<void> {
+export async function addRecommendedAugmentAction(
+  deckId: string,
+  augmentId: string,
+  tier: RecommendTier
+): Promise<void> {
   const supabase = getSupabaseServerClient();
 
   const { data: existing, error: readError } = await supabase
@@ -17,9 +22,10 @@ export async function addRecommendedAugmentAction(deckId: string, augmentId: str
   const rows = existing as Array<{ position: number }> | null;
   const nextPosition = (rows?.[0]?.position ?? -1) + 1;
 
-  const { error } = await supabase
-    .from("deck_recommended_augments")
-    .upsert({ deck_id: deckId, augment_id: augmentId, position: nextPosition }, { onConflict: "deck_id,augment_id" });
+  const { error } = await supabase.from("deck_recommended_augments").upsert(
+    { deck_id: deckId, augment_id: augmentId, position: nextPosition, recommend_tier: tier },
+    { onConflict: "deck_id,augment_id" }
+  );
   if (error) throw new Error(error.message);
 
   revalidatePath("/decks");
@@ -38,7 +44,7 @@ export async function removeRecommendedAugmentAction(deckId: string, augmentId: 
   revalidatePath("/decks");
 }
 
-export async function addRecommendedItemAction(deckId: string, itemId: string): Promise<void> {
+export async function addRecommendedItemAction(deckId: string, itemId: string, tier: RecommendTier): Promise<void> {
   const supabase = getSupabaseServerClient();
 
   const { data: existing, error: readError } = await supabase
@@ -52,9 +58,10 @@ export async function addRecommendedItemAction(deckId: string, itemId: string): 
   const rows = existing as Array<{ position: number }> | null;
   const nextPosition = (rows?.[0]?.position ?? -1) + 1;
 
-  const { error } = await supabase
-    .from("deck_recommended_items")
-    .upsert({ deck_id: deckId, item_id: itemId, position: nextPosition }, { onConflict: "deck_id,item_id" });
+  const { error } = await supabase.from("deck_recommended_items").upsert(
+    { deck_id: deckId, item_id: itemId, position: nextPosition, recommend_tier: tier },
+    { onConflict: "deck_id,item_id" }
+  );
   if (error) throw new Error(error.message);
 
   revalidatePath("/decks");

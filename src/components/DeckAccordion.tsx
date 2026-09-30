@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { isRecommendTier, type RecommendTier } from "@/lib/constants";
 import type { DeckWithImages, RecommendableAugment, RecommendableItem } from "@/lib/types";
 import { createDeckAction } from "@/lib/actions/deckActions";
 import {
@@ -11,7 +12,6 @@ import {
   removeRecommendedItemAction,
 } from "@/lib/actions/deckRecommendationActions";
 import DeckItem from "./DeckItem";
-import RecommendationPools from "./RecommendationPools";
 
 interface Props {
   initialDecks: DeckWithImages[];
@@ -53,23 +53,27 @@ export default function DeckAccordion({ initialDecks, recommendableAugments, rec
     setExpandedId((prev) => (prev === deckId ? null : prev));
   }
 
-  function handleAddRecommendedAugment(deckId: string, augmentId: string) {
+  function handleAddRecommendedAugment(deckId: string, augmentId: string, tier: RecommendTier) {
     const augment = recommendableAugments.find((a) => a.id === augmentId);
     if (!augment) return;
     setError(null);
 
     setDecks((prev) =>
       prev.map((d) => {
-        if (d.id !== deckId || d.recommendedAugments.some((r) => r.augment_id === augmentId)) return d;
+        if (d.id !== deckId) return d;
+        const withoutExisting = d.recommendedAugments.filter((r) => r.augment_id !== augmentId);
         return {
           ...d,
-          recommendedAugments: [...d.recommendedAugments, { augment_id: augmentId, name: augment.name, icon_url: augment.icon_url }],
+          recommendedAugments: [
+            ...withoutExisting,
+            { augment_id: augmentId, name: augment.name, icon_url: augment.icon_url, recommend_tier: tier },
+          ],
         };
       })
     );
 
     startTransition(() => {
-      addRecommendedAugmentAction(deckId, augmentId).catch((err) => {
+      addRecommendedAugmentAction(deckId, augmentId, tier).catch((err) => {
         setError(err instanceof Error ? err.message : "추가 실패");
         setDecks((prev) =>
           prev.map((d) =>
@@ -82,26 +86,27 @@ export default function DeckAccordion({ initialDecks, recommendableAugments, rec
     });
   }
 
-  function handleAddRecommendedItem(deckId: string, itemId: string) {
+  function handleAddRecommendedItem(deckId: string, itemId: string, tier: RecommendTier) {
     const item = recommendableItems.find((i) => i.id === itemId);
     if (!item) return;
     setError(null);
 
     setDecks((prev) =>
       prev.map((d) => {
-        if (d.id !== deckId || d.recommendedItems.some((r) => r.item_id === itemId)) return d;
+        if (d.id !== deckId) return d;
+        const withoutExisting = d.recommendedItems.filter((r) => r.item_id !== itemId);
         return {
           ...d,
           recommendedItems: [
-            ...d.recommendedItems,
-            { item_id: itemId, name: item.name, icon_url: item.icon_url, category: item.category },
+            ...withoutExisting,
+            { item_id: itemId, name: item.name, icon_url: item.icon_url, category: item.category, recommend_tier: tier },
           ],
         };
       })
     );
 
     startTransition(() => {
-      addRecommendedItemAction(deckId, itemId).catch((err) => {
+      addRecommendedItemAction(deckId, itemId, tier).catch((err) => {
         setError(err instanceof Error ? err.message : "추가 실패");
         setDecks((prev) =>
           prev.map((d) =>
@@ -161,10 +166,15 @@ export default function DeckAccordion({ initialDecks, recommendableAugments, rec
     const activeId = String(active.id);
     const overId = String(over.id);
 
+    // 드롭존 id 형식: "deck-augments:<deckId>:<tier>" / "deck-items:<deckId>:<tier>"
     if (activeId.startsWith("pool-augment:") && overId.startsWith("deck-augments:")) {
-      handleAddRecommendedAugment(overId.slice("deck-augments:".length), activeId.slice("pool-augment:".length));
+      const [, deckId, tier] = overId.split(":");
+      if (!deckId || !isRecommendTier(tier)) return;
+      handleAddRecommendedAugment(deckId, activeId.slice("pool-augment:".length), tier);
     } else if (activeId.startsWith("pool-item:") && overId.startsWith("deck-items:")) {
-      handleAddRecommendedItem(overId.slice("deck-items:".length), activeId.slice("pool-item:".length));
+      const [, deckId, tier] = overId.split(":");
+      if (!deckId || !isRecommendTier(tier)) return;
+      handleAddRecommendedItem(deckId, activeId.slice("pool-item:".length), tier);
     }
   }
 
@@ -192,8 +202,6 @@ export default function DeckAccordion({ initialDecks, recommendableAugments, rec
         </div>
         {error && <p className="text-sm text-red-400">{error}</p>}
 
-        <RecommendationPools augments={recommendableAugments} items={recommendableItems} />
-
         {decks.length === 0 ? (
           <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900 p-6 text-center">
             <p className="text-sm text-neutral-400">아직 등록한 덱이 없어요. 덱을 추가해보세요.</p>
@@ -210,6 +218,8 @@ export default function DeckAccordion({ initialDecks, recommendableAugments, rec
                 onDelete={handleDelete}
                 onRemoveRecommendedAugment={handleRemoveRecommendedAugment}
                 onRemoveRecommendedItem={handleRemoveRecommendedItem}
+                recommendableAugments={recommendableAugments}
+                recommendableItems={recommendableItems}
               />
             ))}
           </div>
