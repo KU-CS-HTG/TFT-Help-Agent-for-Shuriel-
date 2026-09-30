@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import type { DeckWithImages, RecommendableAugment, RecommendableItem } from "@/lib/types";
+import type { DeckWithImages, ItemWithExtras, RecommendableAugment, RecommendableItem } from "@/lib/types";
 import { deleteDeckAction, updateDeckNameAction, updateDeckTipsAction } from "@/lib/actions/deckActions";
 import {
   addSubImagesAction,
@@ -25,6 +25,7 @@ interface Props {
   onRemoveRecommendedItem: (deckId: string, itemId: string) => void;
   recommendableAugments: RecommendableAugment[];
   recommendableItems: RecommendableItem[];
+  allItems: ItemWithExtras[];
 }
 
 export default function DeckItem({
@@ -37,6 +38,7 @@ export default function DeckItem({
   onRemoveRecommendedItem,
   recommendableAugments,
   recommendableItems,
+  allItems,
 }: Props) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(deck.name);
@@ -386,6 +388,7 @@ export default function DeckItem({
           recommended={deck.recommendedItems}
           pool={recommendableItems}
           onRemove={onRemoveRecommendedItem}
+          allItems={allItems}
         />
 
         <div>

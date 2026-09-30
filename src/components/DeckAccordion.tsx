@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { isRecommendTier, type RecommendTier } from "@/lib/constants";
-import type { DeckWithImages, RecommendableAugment, RecommendableItem } from "@/lib/types";
+import type { DeckWithImages, ItemWithExtras, RecommendableAugment, RecommendableItem } from "@/lib/types";
 import { createDeckAction } from "@/lib/actions/deckActions";
 import {
   addRecommendedAugmentAction,
@@ -17,9 +17,10 @@ interface Props {
   initialDecks: DeckWithImages[];
   recommendableAugments: RecommendableAugment[];
   recommendableItems: RecommendableItem[];
+  allItems: ItemWithExtras[];
 }
 
-export default function DeckAccordion({ initialDecks, recommendableAugments, recommendableItems }: Props) {
+export default function DeckAccordion({ initialDecks, recommendableAugments, recommendableItems, allItems }: Props) {
   const [decks, setDecks] = useState(initialDecks);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
@@ -66,7 +67,7 @@ export default function DeckAccordion({ initialDecks, recommendableAugments, rec
           ...d,
           recommendedAugments: [
             ...withoutExisting,
-            { augment_id: augmentId, name: augment.name, icon_url: augment.icon_url, recommend_tier: tier },
+            { augment_id: augmentId, name: augment.name, icon_url: augment.icon_url, recommend_tier: tier, stages: augment.stages },
           ],
         };
       })
@@ -220,6 +221,7 @@ export default function DeckAccordion({ initialDecks, recommendableAugments, rec
                 onRemoveRecommendedItem={handleRemoveRecommendedItem}
                 recommendableAugments={recommendableAugments}
                 recommendableItems={recommendableItems}
+                allItems={allItems}
               />
             ))}
           </div>

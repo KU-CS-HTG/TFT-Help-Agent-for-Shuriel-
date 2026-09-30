@@ -114,6 +114,8 @@ export type DeckRecommendedAugmentDisplay = {
   name: string;
   icon_url: string | null;
   recommend_tier: RecommendTier;
+  /** 아이콘 클릭 시 상세 모달을 열 때 어느 스테이지 컨텍스트로 불러올지 결정 (첫 번째 스테이지 사용) */
+  stages: Stage[];
 };
 
 /** 덱에 드래그해서 추천으로 매달 수 있는 후보 증강체 (미분류 제외하고 미리 걸러서 내려줌) */
@@ -121,6 +123,7 @@ export type RecommendableAugment = {
   id: string;
   name: string;
   icon_url: string | null;
+  stages: Stage[];
 };
 
 /** 덱에 드래그해서 추천으로 매달 수 있는 후보 아이템 (미분류 제외하고 미리 걸러서 내려줌) */
