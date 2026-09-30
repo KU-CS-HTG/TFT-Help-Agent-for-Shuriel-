@@ -88,8 +88,58 @@ export type DeckSubImage = {
   created_at: string;
 };
 
+/** 덱에 추천 증강체로 매달아 둔 연결 행 (원본 테이블 형태) */
+export type DeckRecommendedAugment = {
+  id: string;
+  deck_id: string;
+  augment_id: string;
+  position: number;
+  created_at: string;
+};
+
+/** 덱에 추천 아이템으로 매달아 둔 연결 행 (원본 테이블 형태) */
+export type DeckRecommendedItem = {
+  id: string;
+  deck_id: string;
+  item_id: string;
+  position: number;
+  created_at: string;
+};
+
+/** 화면에 바로 그릴 수 있게 증강체 이름/아이콘까지 채운 추천 증강체 */
+export type DeckRecommendedAugmentDisplay = {
+  augment_id: string;
+  name: string;
+  icon_url: string | null;
+};
+
+/** 덱에 드래그해서 추천으로 매달 수 있는 후보 증강체 (미분류 제외하고 미리 걸러서 내려줌) */
+export type RecommendableAugment = {
+  id: string;
+  name: string;
+  icon_url: string | null;
+};
+
+/** 덱에 드래그해서 추천으로 매달 수 있는 후보 아이템 (미분류 제외하고 미리 걸러서 내려줌) */
+export type RecommendableItem = {
+  id: string;
+  name: string;
+  icon_url: string | null;
+  category: ItemCategory;
+};
+
+/** 화면에 바로 그릴 수 있게 아이템 이름/아이콘/분류까지 채운 추천 아이템 */
+export type DeckRecommendedItemDisplay = {
+  item_id: string;
+  name: string;
+  icon_url: string | null;
+  category: ItemCategory;
+};
+
 export type DeckWithImages = Deck & {
   subImages: DeckSubImage[];
+  recommendedAugments: DeckRecommendedAugmentDisplay[];
+  recommendedItems: DeckRecommendedItemDisplay[];
 };
 
 /** 아이템 원본 데이터 (Community Dragon에서 가져와 캐싱, 일반/유물/찬란 구분 없이 공용) */

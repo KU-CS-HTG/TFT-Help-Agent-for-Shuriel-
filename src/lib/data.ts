@@ -7,6 +7,10 @@ import type {
   AugmentNote,
   AugmentWithExtras,
   Deck,
+  DeckRecommendedAugment,
+  DeckRecommendedAugmentDisplay,
+  DeckRecommendedItem,
+  DeckRecommendedItemDisplay,
   DeckSubImage,
   DeckWithImages,
   Item,
@@ -100,7 +104,14 @@ export async function getStageNote(stage: Stage): Promise<StageNote | null> {
   return (data as StageNote | null) ?? null;
 }
 
-/** "플레이할 만한 덱" 목록(스테이지 구분 없는 공용 목록)을 서브 이미지까지 채워서 가져온다. */
+/**
+ * "플레이할 만한 덱" 목록(스테이지 구분 없는 공용 목록)을 서브 이미지 +
+ * 추천 증강체/아이템까지 채워서 가져온다. 추천 증강체/아이템은 연결 테이블만
+ * 봐서는 이름/아이콘을 알 수 없어서, 관련 augments/items 테이블에서 한 번
+ * 더 가져와 JS에서 합친다(다른 함수들과 동일한 방식 — supabase-js 임베디드
+ * 조인은 이 프로젝트의 손으로 쓴 Database 타입에 관계 메타데이터가 없어
+ * 타입이 안 맞는다).
+ */
 export async function getAllDecks(): Promise<DeckWithImages[]> {
   const supabase = getSupabaseServerClient();
 
@@ -110,23 +121,74 @@ export async function getAllDecks(): Promise<DeckWithImages[]> {
 
   const ids = (decks as Deck[]).map((d) => d.id);
 
-  const { data: subImages, error: subImagesError } = await supabase
-    .from("deck_sub_images")
-    .select("*")
-    .in("deck_id", ids)
-    .order("position");
-  if (subImagesError) throw new Error(subImagesError.message);
+  const [subImagesRes, recAugmentsRes, recItemsRes] = await Promise.all([
+    supabase.from("deck_sub_images").select("*").in("deck_id", ids).order("position"),
+    supabase.from("deck_recommended_augments").select("*").in("deck_id", ids).order("position"),
+    supabase.from("deck_recommended_items").select("*").in("deck_id", ids).order("position"),
+  ]);
+  if (subImagesRes.error) throw new Error(subImagesRes.error.message);
+  if (recAugmentsRes.error) throw new Error(recAugmentsRes.error.message);
+  if (recItemsRes.error) throw new Error(recItemsRes.error.message);
+
+  const recAugments = (recAugmentsRes.data as DeckRecommendedAugment[]) ?? [];
+  const recItems = (recItemsRes.data as DeckRecommendedItem[]) ?? [];
+
+  const augmentIds = [...new Set(recAugments.map((r) => r.augment_id))];
+  const itemIds = [...new Set(recItems.map((r) => r.item_id))];
+
+  const [augmentsLightRes, itemsLightRes] = await Promise.all([
+    augmentIds.length > 0
+      ? supabase.from("augments").select("id, name, icon_url").in("id", augmentIds)
+      : Promise.resolve({ data: [], error: null }),
+    itemIds.length > 0
+      ? supabase.from("items").select("id, name, icon_url, category").in("id", itemIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (augmentsLightRes.error) throw new Error(augmentsLightRes.error.message);
+  if (itemsLightRes.error) throw new Error(itemsLightRes.error.message);
+
+  const augmentInfoMap = new Map<string, { name: string; icon_url: string | null }>(
+    (augmentsLightRes.data as Array<{ id: string; name: string; icon_url: string | null }>).map((a) => [
+      a.id,
+      { name: a.name, icon_url: a.icon_url },
+    ])
+  );
+  const itemInfoMap = new Map<string, { name: string; icon_url: string | null; category: Item["category"] }>(
+    (itemsLightRes.data as Array<{ id: string; name: string; icon_url: string | null; category: Item["category"] }>).map(
+      (i) => [i.id, { name: i.name, icon_url: i.icon_url, category: i.category }]
+    )
+  );
 
   const subImagesMap = new Map<string, DeckSubImage[]>();
-  for (const img of (subImages as DeckSubImage[]) ?? []) {
+  for (const img of (subImagesRes.data as DeckSubImage[]) ?? []) {
     const list = subImagesMap.get(img.deck_id) ?? [];
     list.push(img);
     subImagesMap.set(img.deck_id, list);
   }
 
+  const recAugmentsMap = new Map<string, DeckRecommendedAugmentDisplay[]>();
+  for (const r of recAugments) {
+    const info = augmentInfoMap.get(r.augment_id);
+    if (!info) continue; // 증강체가 그 사이 삭제된 경우 등 — 조용히 건너뜀
+    const list = recAugmentsMap.get(r.deck_id) ?? [];
+    list.push({ augment_id: r.augment_id, name: info.name, icon_url: info.icon_url });
+    recAugmentsMap.set(r.deck_id, list);
+  }
+
+  const recItemsMap = new Map<string, DeckRecommendedItemDisplay[]>();
+  for (const r of recItems) {
+    const info = itemInfoMap.get(r.item_id);
+    if (!info) continue;
+    const list = recItemsMap.get(r.deck_id) ?? [];
+    list.push({ item_id: r.item_id, name: info.name, icon_url: info.icon_url, category: info.category });
+    recItemsMap.set(r.deck_id, list);
+  }
+
   return (decks as Deck[]).map((d) => ({
     ...d,
     subImages: subImagesMap.get(d.id) ?? [],
+    recommendedAugments: recAugmentsMap.get(d.id) ?? [],
+    recommendedItems: recItemsMap.get(d.id) ?? [],
   }));
 }
 

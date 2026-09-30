@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { useDroppable } from "@dnd-kit/core";
+import { ITEM_CATEGORY_LABEL } from "@/lib/constants";
 import type { DeckWithImages } from "@/lib/types";
 import { deleteDeckAction, updateDeckNameAction, updateDeckTipsAction } from "@/lib/actions/deckActions";
 import {
@@ -13,15 +15,39 @@ import { UNSAVED_CHANGES_MESSAGE, useRegisterDirty } from "@/lib/unsavedChanges"
 
 const IMAGE_ACCEPT = "image/png,image/jpeg,image/webp";
 
+function RecommendationDropZone({ id, children }: { id: string; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex min-h-[3.5rem] flex-wrap items-center gap-2 rounded-lg border border-dashed p-2 transition ${
+        isOver ? "border-indigo-500 bg-neutral-800/70" : "border-neutral-700 bg-neutral-950"
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
 interface Props {
   deck: DeckWithImages;
   expanded: boolean;
   onToggle: () => void;
   onUpdate: (deck: DeckWithImages) => void;
   onDelete: (deckId: string) => void;
+  onRemoveRecommendedAugment: (deckId: string, augmentId: string) => void;
+  onRemoveRecommendedItem: (deckId: string, itemId: string) => void;
 }
 
-export default function DeckItem({ deck, expanded, onToggle, onUpdate, onDelete }: Props) {
+export default function DeckItem({
+  deck,
+  expanded,
+  onToggle,
+  onUpdate,
+  onDelete,
+  onRemoveRecommendedAugment,
+  onRemoveRecommendedItem,
+}: Props) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(deck.name);
   const [tipsContent, setTipsContent] = useState(deck.tips);
@@ -356,6 +382,68 @@ export default function DeckItem({ deck, expanded, onToggle, onUpdate, onDelete 
               ))}
             </div>
           )}
+        </div>
+
+        <div className="mb-4">
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-neutral-600">추천 증강체</p>
+          <RecommendationDropZone id={`deck-augments:${deck.id}`}>
+            {deck.recommendedAugments.length === 0 ? (
+              <p className="text-xs text-neutral-500">위의 추천 후보 목록에서 증강체를 이 칸으로 드래그하세요.</p>
+            ) : (
+              deck.recommendedAugments.map((a) => (
+                <div key={a.augment_id} className="flex items-center gap-1 rounded-lg bg-neutral-800 py-1 pl-1 pr-2">
+                  {a.icon_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={a.icon_url} alt={a.name} className="h-6 w-6 rounded" />
+                  ) : (
+                    <div className="h-6 w-6 rounded bg-neutral-700" />
+                  )}
+                  <span className="max-w-[6rem] truncate text-xs text-neutral-200">{a.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => onRemoveRecommendedAugment(deck.id, a.augment_id)}
+                    className="text-xs text-red-300 hover:text-red-200"
+                    title="제거"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))
+            )}
+          </RecommendationDropZone>
+        </div>
+
+        <div className="mb-4">
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-neutral-600">추천 아이템</p>
+          <RecommendationDropZone id={`deck-items:${deck.id}`}>
+            {deck.recommendedItems.length === 0 ? (
+              <p className="text-xs text-neutral-500">위의 추천 후보 목록에서 아이템을 이 칸으로 드래그하세요.</p>
+            ) : (
+              deck.recommendedItems.map((i) => (
+                <div
+                  key={i.item_id}
+                  className="flex items-center gap-1 rounded-lg bg-neutral-800 py-1 pl-1 pr-2"
+                  title={ITEM_CATEGORY_LABEL[i.category]}
+                >
+                  {i.icon_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={i.icon_url} alt={i.name} className="h-6 w-6 rounded" />
+                  ) : (
+                    <div className="h-6 w-6 rounded bg-neutral-700" />
+                  )}
+                  <span className="max-w-[6rem] truncate text-xs text-neutral-200">{i.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => onRemoveRecommendedItem(deck.id, i.item_id)}
+                    className="text-xs text-red-300 hover:text-red-200"
+                    title="제거"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))
+            )}
+          </RecommendationDropZone>
         </div>
 
         <div>
