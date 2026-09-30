@@ -69,16 +69,16 @@ export default function DeckItemRecommendationSection({ deckId, recommended, poo
                         type="button"
                         onClick={() => handleOpenDetails(i.item_id)}
                         title="자세히 보기"
-                        className="shrink-0"
+                        className="flex min-w-0 items-center gap-1"
                       >
                         {i.icon_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={i.icon_url} alt={i.name} className="h-6 w-6 rounded" />
+                          <img src={i.icon_url} alt={i.name} className="h-6 w-6 shrink-0 rounded" />
                         ) : (
-                          <div className="h-6 w-6 rounded bg-neutral-700" />
+                          <div className="h-6 w-6 shrink-0 rounded bg-neutral-700" />
                         )}
+                        <span className="max-w-[6rem] truncate text-xs text-neutral-200">{i.name}</span>
                       </button>
-                      <span className="max-w-[6rem] truncate text-xs text-neutral-200">{i.name}</span>
                       <button
                         type="button"
                         onClick={() => onRemove(deckId, i.item_id)}

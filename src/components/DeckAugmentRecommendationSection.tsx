@@ -73,16 +73,16 @@ export default function DeckAugmentRecommendationSection({ deckId, recommended, 
                         onClick={() => handleOpenDetails(a)}
                         disabled={loadingId === a.augment_id}
                         title="자세히 보기"
-                        className="shrink-0 disabled:opacity-50"
+                        className="flex min-w-0 items-center gap-1 disabled:opacity-50"
                       >
                         {a.icon_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={a.icon_url} alt={a.name} className="h-6 w-6 rounded" />
+                          <img src={a.icon_url} alt={a.name} className="h-6 w-6 shrink-0 rounded" />
                         ) : (
-                          <div className="h-6 w-6 rounded bg-neutral-700" />
+                          <div className="h-6 w-6 shrink-0 rounded bg-neutral-700" />
                         )}
+                        <span className="max-w-[6rem] truncate text-xs text-neutral-200">{a.name}</span>
                       </button>
-                      <span className="max-w-[6rem] truncate text-xs text-neutral-200">{a.name}</span>
                       <button
                         type="button"
                         onClick={() => onRemove(deckId, a.augment_id)}
