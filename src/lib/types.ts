@@ -12,6 +12,10 @@ export type Augment = {
   description_game: string;
   description_game_overridden: boolean;
   icon_url: string | null;
+  /** 사용자가 아이콘을 직접 교체했는지 — true면 새로고침이 CDragon 원본으로 덮어쓰지 않음 */
+  icon_url_overridden: boolean;
+  /** 직접 교체한 아이콘의 Storage 경로 (CDragon 원본이면 null) */
+  icon_storage_path: string | null;
   rarity: Rarity;
   /** 등급 기준 기본 배정 스테이지 (ingest가 채움, 화면 노출 여부와는 무관 — stages 참고) */
   stage: Stage;

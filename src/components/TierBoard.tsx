@@ -105,6 +105,10 @@ export default function TierBoard({ stage, initialAugments, allAugments }: Props
     setAugments((prev) => (prev.some((a) => a.id === added.id) ? prev : [...prev, added]));
   }
 
+  function handleAugmentDeleted(augmentId: string) {
+    setLightAugments((prev) => prev.filter((a) => a.id !== augmentId));
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <SearchBar value={search} onChange={setSearch} />
@@ -114,13 +118,14 @@ export default function TierBoard({ stage, initialAugments, allAugments }: Props
         allAugments={lightAugments}
         onAdded={handleAugmentAdded}
         onStagesChanged={syncLightStages}
+        onDeleted={handleAugmentDeleted}
       />
 
       {augments.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center text-neutral-400">
           <p className="text-lg font-medium">이 스테이지에 등장하는 것으로 체크된 증강체가 없습니다.</p>
           <p className="text-sm">
-            위의 &quot;+ 증강체 추가&quot;에서 검색해 이 스테이지에 추가하세요. <br />
+            위의 &quot;티어리스트 미포함 증강체 모음&quot;에서 검색해 이 스테이지에 추가하세요. <br />
             DB에 증강체 자체가 하나도 없다면 우측 상단 &quot;패치 데이터 새로고침&quot; 버튼을 먼저 눌러주세요.
           </p>
         </div>
