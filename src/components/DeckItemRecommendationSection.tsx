@@ -2,22 +2,41 @@
 
 import { useState } from "react";
 import { ITEM_CATEGORY_LABEL, RECOMMEND_TIERS, RECOMMEND_TIER_LABEL } from "@/lib/constants";
-import type { DeckRecommendedItemDisplay, RecommendableItem } from "@/lib/types";
+import type { DeckRecommendedItemDisplay, ItemWithExtras, RecommendableItem } from "@/lib/types";
 import DraggablePoolCard from "./DraggablePoolCard";
 import RecommendationDropZone from "./RecommendationDropZone";
+import ItemModal from "./ItemModal";
 
 interface Props {
   deckId: string;
   recommended: DeckRecommendedItemDisplay[];
   pool: RecommendableItem[];
   onRemove: (deckId: string, itemId: string) => void;
+  allItems: ItemWithExtras[];
 }
 
-export default function DeckItemRecommendationSection({ deckId, recommended, pool, onRemove }: Props) {
+export default function DeckItemRecommendationSection({ deckId, recommended, pool, onRemove, allItems }: Props) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<ItemWithExtras | null>(null);
 
   const filteredPool = pool.filter((i) => i.name.toLowerCase().includes(search.trim().toLowerCase()));
+
+  function handleOpenDetails(itemId: string) {
+    const full = allItems.find((i) => i.id === itemId);
+    if (!full) {
+      setError("이 아이템 정보를 더 이상 찾을 수 없습니다 (삭제되었을 수 있어요).");
+      return;
+    }
+    setError(null);
+    setSelected(full);
+  }
+
+  function handleModalDelete(itemId: string) {
+    setSelected(null);
+    onRemove(deckId, itemId);
+  }
 
   return (
     <div className="mb-4">
@@ -46,12 +65,19 @@ export default function DeckItemRecommendationSection({ deckId, recommended, poo
                       className="flex items-center gap-1 rounded-lg bg-neutral-800 py-1 pl-1 pr-2"
                       title={ITEM_CATEGORY_LABEL[i.category]}
                     >
-                      {i.icon_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={i.icon_url} alt={i.name} className="h-6 w-6 rounded" />
-                      ) : (
-                        <div className="h-6 w-6 rounded bg-neutral-700" />
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDetails(i.item_id)}
+                        title="자세히 보기"
+                        className="shrink-0"
+                      >
+                        {i.icon_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={i.icon_url} alt={i.name} className="h-6 w-6 rounded" />
+                        ) : (
+                          <div className="h-6 w-6 rounded bg-neutral-700" />
+                        )}
+                      </button>
                       <span className="max-w-[6rem] truncate text-xs text-neutral-200">{i.name}</span>
                       <button
                         type="button"
@@ -101,6 +127,17 @@ export default function DeckItemRecommendationSection({ deckId, recommended, poo
             저장
           </button>
         </div>
+      )}
+
+      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+
+      {selected && (
+        <ItemModal
+          item={selected}
+          onClose={() => setSelected(null)}
+          onUpdate={(updated) => setSelected(updated)}
+          onDelete={handleModalDelete}
+        />
       )}
     </div>
   );

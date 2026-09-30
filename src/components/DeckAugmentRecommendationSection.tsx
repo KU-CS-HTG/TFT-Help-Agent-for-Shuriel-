@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { RECOMMEND_TIERS, RECOMMEND_TIER_LABEL } from "@/lib/constants";
-import type { DeckRecommendedAugmentDisplay, RecommendableAugment } from "@/lib/types";
+import { useState, useTransition } from "react";
+import { RECOMMEND_TIERS, RECOMMEND_TIER_LABEL, type Stage } from "@/lib/constants";
+import type { AugmentWithExtras, DeckRecommendedAugmentDisplay, RecommendableAugment } from "@/lib/types";
+import { fetchAugmentForStage } from "@/lib/actions/augmentQueryActions";
 import DraggablePoolCard from "./DraggablePoolCard";
 import RecommendationDropZone from "./RecommendationDropZone";
+import AugmentModal from "./AugmentModal";
 
 interface Props {
   deckId: string;
@@ -16,8 +18,32 @@ interface Props {
 export default function DeckAugmentRecommendationSection({ deckId, recommended, pool, onRemove }: Props) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<{ augment: AugmentWithExtras; stage: Stage } | null>(null);
+  const [, startTransition] = useTransition();
 
   const filteredPool = pool.filter((a) => a.name.toLowerCase().includes(search.trim().toLowerCase()));
+
+  function handleOpenDetails(a: DeckRecommendedAugmentDisplay) {
+    if (a.stages.length === 0) {
+      setError("이 증강체는 지금 어느 스테이지에도 없어서 상세 정보를 열 수 없습니다.");
+      return;
+    }
+    setError(null);
+    setLoadingId(a.augment_id);
+    const stage = a.stages[0];
+    startTransition(async () => {
+      try {
+        const full = await fetchAugmentForStage(a.augment_id, stage);
+        setSelected({ augment: full, stage });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "불러오기 실패");
+      } finally {
+        setLoadingId(null);
+      }
+    });
+  }
 
   return (
     <div className="mb-4">
@@ -42,12 +68,20 @@ export default function DeckAugmentRecommendationSection({ deckId, recommended, 
                 ) : (
                   inTier.map((a) => (
                     <div key={a.augment_id} className="flex items-center gap-1 rounded-lg bg-neutral-800 py-1 pl-1 pr-2">
-                      {a.icon_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={a.icon_url} alt={a.name} className="h-6 w-6 rounded" />
-                      ) : (
-                        <div className="h-6 w-6 rounded bg-neutral-700" />
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDetails(a)}
+                        disabled={loadingId === a.augment_id}
+                        title="자세히 보기"
+                        className="shrink-0 disabled:opacity-50"
+                      >
+                        {a.icon_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={a.icon_url} alt={a.name} className="h-6 w-6 rounded" />
+                        ) : (
+                          <div className="h-6 w-6 rounded bg-neutral-700" />
+                        )}
+                      </button>
                       <span className="max-w-[6rem] truncate text-xs text-neutral-200">{a.name}</span>
                       <button
                         type="button"
@@ -92,6 +126,17 @@ export default function DeckAugmentRecommendationSection({ deckId, recommended, 
             저장
           </button>
         </div>
+      )}
+
+      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+
+      {selected && (
+        <AugmentModal
+          augment={selected.augment}
+          stage={selected.stage}
+          onClose={() => setSelected(null)}
+          onUpdate={(updated) => setSelected((prev) => (prev ? { augment: updated, stage: prev.stage } : prev))}
+        />
       )}
     </div>
   );

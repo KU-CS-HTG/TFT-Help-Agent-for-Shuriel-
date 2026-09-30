@@ -138,7 +138,7 @@ export async function getAllDecks(): Promise<DeckWithImages[]> {
 
   const [augmentsLightRes, itemsLightRes] = await Promise.all([
     augmentIds.length > 0
-      ? supabase.from("augments").select("id, name, icon_url").in("id", augmentIds)
+      ? supabase.from("augments").select("id, name, icon_url, stages").in("id", augmentIds)
       : Promise.resolve({ data: [], error: null }),
     itemIds.length > 0
       ? supabase.from("items").select("id, name, icon_url, category").in("id", itemIds)
@@ -147,11 +147,10 @@ export async function getAllDecks(): Promise<DeckWithImages[]> {
   if (augmentsLightRes.error) throw new Error(augmentsLightRes.error.message);
   if (itemsLightRes.error) throw new Error(itemsLightRes.error.message);
 
-  const augmentInfoMap = new Map<string, { name: string; icon_url: string | null }>(
-    (augmentsLightRes.data as Array<{ id: string; name: string; icon_url: string | null }>).map((a) => [
-      a.id,
-      { name: a.name, icon_url: a.icon_url },
-    ])
+  const augmentInfoMap = new Map<string, { name: string; icon_url: string | null; stages: Stage[] }>(
+    (augmentsLightRes.data as Array<{ id: string; name: string; icon_url: string | null; stages: Stage[] }>).map(
+      (a) => [a.id, { name: a.name, icon_url: a.icon_url, stages: a.stages }]
+    )
   );
   const itemInfoMap = new Map<string, { name: string; icon_url: string | null; category: Item["category"] }>(
     (itemsLightRes.data as Array<{ id: string; name: string; icon_url: string | null; category: Item["category"] }>).map(
@@ -171,7 +170,13 @@ export async function getAllDecks(): Promise<DeckWithImages[]> {
     const info = augmentInfoMap.get(r.augment_id);
     if (!info) continue; // 증강체가 그 사이 삭제된 경우 등 — 조용히 건너뜀
     const list = recAugmentsMap.get(r.deck_id) ?? [];
-    list.push({ augment_id: r.augment_id, name: info.name, icon_url: info.icon_url, recommend_tier: r.recommend_tier });
+    list.push({
+      augment_id: r.augment_id,
+      name: info.name,
+      icon_url: info.icon_url,
+      recommend_tier: r.recommend_tier,
+      stages: info.stages,
+    });
     recAugmentsMap.set(r.deck_id, list);
   }
 

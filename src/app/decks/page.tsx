@@ -17,7 +17,7 @@ export default async function DecksPage() {
   // 추천으로 매달 수 있게.
   const recommendableAugments: RecommendableAugment[] = allAugments
     .filter((a) => a.stages.length > 0)
-    .map((a) => ({ id: a.id, name: a.name, icon_url: a.icon_url }));
+    .map((a) => ({ id: a.id, name: a.name, icon_url: a.icon_url, stages: a.stages }));
   const recommendableItems: RecommendableItem[] = allItems
     .filter((i) => i.placement !== null)
     .map((i) => ({ id: i.id, name: i.name, icon_url: i.icon_url, category: i.category }));
@@ -32,6 +32,7 @@ export default async function DecksPage() {
         initialDecks={decks}
         recommendableAugments={recommendableAugments}
         recommendableItems={recommendableItems}
+        allItems={allItems}
       />
     </div>
   );
