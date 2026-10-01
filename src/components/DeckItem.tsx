@@ -283,7 +283,7 @@ export default function DeckItem({
       </div>
 
       <div className="border-t border-neutral-800 p-3">
-        <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-neutral-600">보는 방법</p>
+        <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-neutral-600">각 보는 방법</p>
         <div className="prose prose-invert prose-sm max-w-none text-sm text-neutral-200">
           {deck.view_guide.trim() ? (
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{deck.view_guide}</ReactMarkdown>
@@ -298,7 +298,7 @@ export default function DeckItem({
       <div className={expanded ? "border-t border-neutral-800 p-3" : "hidden"}>
         <div className="mb-4">
           <div className="mb-1 flex items-center justify-between">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-600">보는 방법 편집</p>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-600">각 보는 방법 편집</p>
             <button
               type="button"
               onClick={() => setViewGuideMode(viewGuideMode === "edit" ? "preview" : "edit")}
