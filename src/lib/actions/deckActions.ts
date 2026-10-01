@@ -61,6 +61,21 @@ export async function updateDeckTipsAction(deckId: string, tips: string): Promis
   return data as Deck;
 }
 
+export async function updateDeckViewGuideAction(deckId: string, viewGuide: string): Promise<Deck> {
+  const supabase = getSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("decks")
+    .update({ view_guide: viewGuide })
+    .eq("id", deckId)
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/decks");
+  return data as Deck;
+}
+
 export async function deleteDeckAction(deckId: string): Promise<void> {
   const supabase = getSupabaseServerClient();
 

@@ -74,6 +74,8 @@ export type Deck = {
   main_image_url: string | null;
   main_image_storage_path: string | null;
   tips: string;
+  /** 덱 카드가 접힌 상태에서도 맨 위쪽에 노출되는 마크다운 안내문 ("각 보는 방법") */
+  view_guide: string;
   position: number;
   created_at: string;
   updated_at: string;
