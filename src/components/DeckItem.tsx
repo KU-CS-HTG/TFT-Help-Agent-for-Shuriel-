@@ -1,8 +1,15 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { DeckWithImages, ItemWithExtras, RecommendableAugment, RecommendableItem } from "@/lib/types";
-import { deleteDeckAction, updateDeckNameAction, updateDeckTipsAction } from "@/lib/actions/deckActions";
+import {
+  deleteDeckAction,
+  updateDeckNameAction,
+  updateDeckTipsAction,
+  updateDeckViewGuideAction,
+} from "@/lib/actions/deckActions";
 import {
   addSubImagesAction,
   deleteMainImageAction,
@@ -43,6 +50,8 @@ export default function DeckItem({
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(deck.name);
   const [tipsContent, setTipsContent] = useState(deck.tips);
+  const [viewGuideContent, setViewGuideContent] = useState(deck.view_guide);
+  const [viewGuideMode, setViewGuideMode] = useState<"edit" | "preview">("edit");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const mainImageInputRef = useRef<HTMLInputElement>(null);
@@ -51,6 +60,9 @@ export default function DeckItem({
 
   const tipsDirty = tipsContent !== deck.tips;
   useRegisterDirty(`deck-tips-${deck.id}`, tipsDirty);
+
+  const viewGuideDirty = viewGuideContent !== deck.view_guide;
+  useRegisterDirty(`deck-view-guide-${deck.id}`, viewGuideDirty);
 
   function startEditName(e: React.MouseEvent) {
     e.stopPropagation();
@@ -106,6 +118,22 @@ export default function DeckItem({
 
   function cancelTips() {
     setTipsContent(deck.tips);
+  }
+
+  function saveViewGuide() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const updated = await updateDeckViewGuideAction(deck.id, viewGuideContent);
+        onUpdate({ ...deck, ...updated });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "저장 실패");
+      }
+    });
+  }
+
+  function cancelViewGuide() {
+    setViewGuideContent(deck.view_guide);
   }
 
   function handleMainImageChange(files: FileList | null) {
@@ -193,7 +221,7 @@ export default function DeckItem({
       <div
         className="flex cursor-pointer items-center justify-between gap-2 p-3"
         onClick={() => {
-          if (tipsDirty && !window.confirm(UNSAVED_CHANGES_MESSAGE)) return;
+          if ((tipsDirty || viewGuideDirty) && !window.confirm(UNSAVED_CHANGES_MESSAGE)) return;
           onToggle();
         }}
       >
@@ -254,7 +282,70 @@ export default function DeckItem({
         </div>
       </div>
 
+      <div className="border-t border-neutral-800 p-3">
+        <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-neutral-600">보는 방법</p>
+        <div className="prose prose-invert prose-sm max-w-none text-sm text-neutral-200">
+          {deck.view_guide.trim() ? (
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{deck.view_guide}</ReactMarkdown>
+          ) : (
+            <p className="text-neutral-500">
+              아직 작성되지 않았어요. 펼쳐서 작성해보세요.
+            </p>
+          )}
+        </div>
+      </div>
+
       <div className={expanded ? "border-t border-neutral-800 p-3" : "hidden"}>
+        <div className="mb-4">
+          <div className="mb-1 flex items-center justify-between">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-600">보는 방법 편집</p>
+            <button
+              type="button"
+              onClick={() => setViewGuideMode(viewGuideMode === "edit" ? "preview" : "edit")}
+              className="rounded bg-neutral-800 px-2 py-1 text-xs text-neutral-300 hover:bg-neutral-700"
+            >
+              {viewGuideMode === "edit" ? "미리보기" : "편집"}
+            </button>
+          </div>
+
+          {viewGuideMode === "edit" ? (
+            <textarea
+              value={viewGuideContent}
+              onChange={(e) => setViewGuideContent(e.target.value)}
+              placeholder="이 덱을 어떻게 보면 되는지 설명을 마크다운으로 적어보세요. 덱이 접혀 있어도 맨 위쪽에 표시됩니다."
+              rows={6}
+              className="w-full resize-y rounded-lg border border-neutral-700 bg-neutral-950 p-2 text-sm text-neutral-100 outline-none focus:border-indigo-500"
+            />
+          ) : (
+            <div className="min-h-[6rem] rounded-lg border border-neutral-800 bg-neutral-950 p-3 text-sm text-neutral-200 prose prose-invert prose-sm max-w-none">
+              {viewGuideContent.trim() ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{viewGuideContent}</ReactMarkdown>
+              ) : (
+                <p className="text-neutral-500">비어 있음</p>
+              )}
+            </div>
+          )}
+
+          <div className="mt-2 flex items-center gap-2">
+            <button
+              type="button"
+              disabled={pending || !viewGuideDirty}
+              onClick={saveViewGuide}
+              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+            >
+              저장
+            </button>
+            <button
+              type="button"
+              disabled={pending || !viewGuideDirty}
+              onClick={cancelViewGuide}
+              className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-700 disabled:opacity-50"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+
         <div className="mb-4">
           <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-neutral-600">대표 이미지</p>
           {deck.main_image_url ? (
