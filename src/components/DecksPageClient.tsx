@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type {
-  DeckSummary,
   DeckWithImages,
   ItemWithExtras,
   PatchVersionWithDeckIds,
@@ -34,16 +33,11 @@ export default function DecksPageClient({
 }: Props) {
   const [decks, setDecks] = useState(initialDecks);
 
-  const deckSummaries: DeckSummary[] = useMemo(
-    () => decks.map((d) => ({ id: d.id, name: d.name, main_image_url: d.main_image_url })),
-    [decks]
-  );
-
   return (
     <div className="flex flex-col gap-6">
       <section>
         <h2 className="mb-2 text-sm font-semibold text-neutral-300">패치 버전별 할만한 덱</h2>
-        <PatchVersionBoard initialPatchVersions={initialPatchVersions} decks={deckSummaries} />
+        <PatchVersionBoard initialPatchVersions={initialPatchVersions} decks={decks} />
       </section>
 
       <section>

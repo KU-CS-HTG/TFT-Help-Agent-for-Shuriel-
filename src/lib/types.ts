@@ -151,13 +151,6 @@ export type DeckWithImages = Deck & {
   recommendedItems: DeckRecommendedItemDisplay[];
 };
 
-/** 패치 버전별 "할만한 덱" 드래그 대상 고르기용 가벼운 덱 정보 */
-export type DeckSummary = {
-  id: string;
-  name: string;
-  main_image_url: string | null;
-};
-
 /** 사용자가 직접 관리하는 패치 버전 목록 (이름 + 순서) */
 export type PatchVersion = {
   id: string;

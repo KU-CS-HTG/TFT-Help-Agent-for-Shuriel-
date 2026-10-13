@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
-import type { DeckSummary, PatchVersionWithDeckIds } from "@/lib/types";
+import type { DeckWithImages, PatchVersionWithDeckIds } from "@/lib/types";
 import {
   addDeckToPatchAction,
   createPatchVersionAction,
@@ -10,17 +10,19 @@ import {
   removeDeckFromPatchAction,
   renamePatchVersionAction,
 } from "@/lib/actions/patchVersionActions";
+import DeckDetailModal from "./DeckDetailModal";
 import PatchVersionCard from "./PatchVersionCard";
 
 interface Props {
   initialPatchVersions: PatchVersionWithDeckIds[];
-  decks: DeckSummary[];
+  decks: DeckWithImages[];
 }
 
 export default function PatchVersionBoard({ initialPatchVersions, decks }: Props) {
   const [patchVersions, setPatchVersions] = useState(initialPatchVersions);
   const [newName, setNewName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [detailDeckId, setDetailDeckId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
@@ -166,7 +168,7 @@ export default function PatchVersionBoard({ initialPatchVersions, decks }: Props
             {patchVersions.map((p) => {
               const assignedDecks = p.deckIds
                 .map((id) => deckMap.get(id))
-                .filter((d): d is DeckSummary => Boolean(d));
+                .filter((d): d is DeckWithImages => Boolean(d));
               const assignedIds = new Set(p.deckIds);
               const pool = decks.filter((d) => !assignedIds.has(d.id));
               return (
@@ -179,12 +181,20 @@ export default function PatchVersionBoard({ initialPatchVersions, decks }: Props
                   onRename={handleRename}
                   onDelete={handleDelete}
                   onRemoveDeck={handleRemoveDeck}
+                  onOpenDetail={(deckId) => setDetailDeckId(deckId)}
                 />
               );
             })}
           </div>
         )}
       </div>
+
+      {detailDeckId &&
+        (() => {
+          const deck = deckMap.get(detailDeckId);
+          if (!deck) return null;
+          return <DeckDetailModal deck={deck} onClose={() => setDetailDeckId(null)} />;
+        })()}
     </DndContext>
   );
 }

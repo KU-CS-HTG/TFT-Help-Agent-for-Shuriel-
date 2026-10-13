@@ -1,18 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import type { DeckSummary } from "@/lib/types";
+import type { DeckWithImages } from "@/lib/types";
 import DraggablePoolCard from "./DraggablePoolCard";
 import RecommendationDropZone from "./RecommendationDropZone";
 
 interface Props {
   patchVersionId: string;
   name: string;
-  assignedDecks: DeckSummary[];
-  pool: DeckSummary[];
+  assignedDecks: DeckWithImages[];
+  pool: DeckWithImages[];
   onRename: (patchVersionId: string, name: string) => void;
   onDelete: (patchVersionId: string) => void;
   onRemoveDeck: (patchVersionId: string, deckId: string) => void;
+  onOpenDetail: (deckId: string) => void;
 }
 
 export default function PatchVersionCard({
@@ -23,6 +24,7 @@ export default function PatchVersionCard({
   onRename,
   onDelete,
   onRemoveDeck,
+  onOpenDetail,
 }: Props) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(name);
@@ -110,13 +112,20 @@ export default function PatchVersionCard({
         ) : (
           assignedDecks.map((d) => (
             <div key={d.id} className="flex items-center gap-1 rounded-lg bg-neutral-800 py-1 pl-1 pr-2">
-              {d.main_image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={d.main_image_url} alt={d.name} className="h-6 w-6 shrink-0 rounded object-cover" />
-              ) : (
-                <div className="h-6 w-6 shrink-0 rounded bg-neutral-700" />
-              )}
-              <span className="max-w-[8rem] truncate text-xs text-neutral-200">{d.name}</span>
+              <button
+                type="button"
+                onClick={() => onOpenDetail(d.id)}
+                title="자세히 보기"
+                className="flex min-w-0 items-center gap-1"
+              >
+                {d.main_image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={d.main_image_url} alt={d.name} className="h-6 w-6 shrink-0 rounded object-cover" />
+                ) : (
+                  <div className="h-6 w-6 shrink-0 rounded bg-neutral-700" />
+                )}
+                <span className="max-w-[8rem] truncate text-xs text-neutral-200">{d.name}</span>
+              </button>
               <button
                 type="button"
                 onClick={() => onRemoveDeck(patchVersionId, d.id)}
