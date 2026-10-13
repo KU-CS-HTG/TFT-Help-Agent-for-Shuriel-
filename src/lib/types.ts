@@ -151,6 +151,35 @@ export type DeckWithImages = Deck & {
   recommendedItems: DeckRecommendedItemDisplay[];
 };
 
+/** 패치 버전별 "할만한 덱" 드래그 대상 고르기용 가벼운 덱 정보 */
+export type DeckSummary = {
+  id: string;
+  name: string;
+  main_image_url: string | null;
+};
+
+/** 사용자가 직접 관리하는 패치 버전 목록 (이름 + 순서) */
+export type PatchVersion = {
+  id: string;
+  name: string;
+  position: number;
+  created_at: string;
+};
+
+/** 특정 패치 버전에 어떤 덱을 넣어뒀는지 나타내는 연결 행 (원본 테이블 형태) */
+export type PatchDeckSelection = {
+  id: string;
+  patch_version_id: string;
+  deck_id: string;
+  position: number;
+  created_at: string;
+};
+
+/** 화면에 바로 그릴 수 있게, 패치 버전에 넣어둔 덱 id 목록까지 채운 패치 버전 */
+export type PatchVersionWithDeckIds = PatchVersion & {
+  deckIds: string[];
+};
+
 /** 아이템 원본 데이터 (Community Dragon에서 가져와 캐싱, 일반/유물/찬란 구분 없이 공용) */
 export type Item = {
   id: string;

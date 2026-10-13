@@ -17,6 +17,9 @@ import type {
   ItemNote,
   ItemTierPlacement,
   ItemWithExtras,
+  PatchDeckSelection,
+  PatchVersion,
+  PatchVersionWithDeckIds,
   StageNote,
   TierPlacement,
 } from "./types";
@@ -200,6 +203,44 @@ export async function getAllDecks(): Promise<DeckWithImages[]> {
     subImages: subImagesMap.get(d.id) ?? [],
     recommendedAugments: recAugmentsMap.get(d.id) ?? [],
     recommendedItems: recItemsMap.get(d.id) ?? [],
+  }));
+}
+
+/**
+ * 패치 버전 목록을, 각 패치 버전에 넣어둔 덱 id 목록(순서대로)까지 채워서
+ * 가져온다. 덱 이름/썸네일은 여기서 들고 있지 않고 화면에서 전체 덱 목록과
+ * client에서 합친다 — 그래야 덱 이름을 바꿔도 패치 버전 쪽에 바로 반영된다.
+ */
+export async function getAllPatchVersions(): Promise<PatchVersionWithDeckIds[]> {
+  const supabase = getSupabaseServerClient();
+
+  const { data: patchVersions, error } = await supabase
+    .from("patch_versions")
+    .select("*")
+    .order("position")
+    .order("created_at");
+  if (error) throw new Error(error.message);
+  if (!patchVersions || patchVersions.length === 0) return [];
+
+  const ids = (patchVersions as PatchVersion[]).map((p) => p.id);
+
+  const { data: selections, error: selectionsError } = await supabase
+    .from("patch_deck_selections")
+    .select("*")
+    .in("patch_version_id", ids)
+    .order("position");
+  if (selectionsError) throw new Error(selectionsError.message);
+
+  const deckIdsMap = new Map<string, string[]>();
+  for (const s of (selections as PatchDeckSelection[]) ?? []) {
+    const list = deckIdsMap.get(s.patch_version_id) ?? [];
+    list.push(s.deck_id);
+    deckIdsMap.set(s.patch_version_id, list);
+  }
+
+  return (patchVersions as PatchVersion[]).map((p) => ({
+    ...p,
+    deckIds: deckIdsMap.get(p.id) ?? [],
   }));
 }
 

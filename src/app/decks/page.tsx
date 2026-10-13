@@ -1,15 +1,16 @@
-import { getAllAugmentsLight, getAllDecks, getAllItemsWithExtras } from "@/lib/data";
+import { getAllAugmentsLight, getAllDecks, getAllItemsWithExtras, getAllPatchVersions } from "@/lib/data";
 import type { RecommendableAugment, RecommendableItem } from "@/lib/types";
-import DeckAccordion from "@/components/DeckAccordion";
+import DecksPageClient from "@/components/DecksPageClient";
 import BackLink from "@/components/BackLink";
 
 export const dynamic = "force-dynamic";
 
 export default async function DecksPage() {
-  const [decks, allAugments, allItems] = await Promise.all([
+  const [decks, allAugments, allItems, patchVersions] = await Promise.all([
     getAllDecks(),
     getAllAugmentsLight(),
     getAllItemsWithExtras(),
+    getAllPatchVersions(),
   ]);
 
   // 추천 후보 풀에는 "미분류"(어느 스테이지에도 없는 증강체 / 티어에 배치하지
@@ -28,8 +29,9 @@ export default async function DecksPage() {
         <BackLink />
       </div>
       <h1 className="text-lg font-semibold text-neutral-100">플레이할 만한 덱 종류</h1>
-      <DeckAccordion
+      <DecksPageClient
         initialDecks={decks}
+        initialPatchVersions={patchVersions}
         recommendableAugments={recommendableAugments}
         recommendableItems={recommendableItems}
         allItems={allItems}
