@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type Dispatch, type SetStateAction } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { isRecommendTier, type RecommendTier } from "@/lib/constants";
 import type { DeckWithImages, ItemWithExtras, RecommendableAugment, RecommendableItem } from "@/lib/types";
@@ -14,14 +14,16 @@ import {
 import DeckItem from "./DeckItem";
 
 interface Props {
-  initialDecks: DeckWithImages[];
+  decks: DeckWithImages[];
+  /** 덱 목록은 패치 버전별 "할만한 덱" 드래그 대상과 상태를 공유해야 해서
+   * 상위(DecksPageClient)가 소유하고, 여기서는 그 setState를 그대로 받아 쓴다. */
+  setDecks: Dispatch<SetStateAction<DeckWithImages[]>>;
   recommendableAugments: RecommendableAugment[];
   recommendableItems: RecommendableItem[];
   allItems: ItemWithExtras[];
 }
 
-export default function DeckAccordion({ initialDecks, recommendableAugments, recommendableItems, allItems }: Props) {
-  const [decks, setDecks] = useState(initialDecks);
+export default function DeckAccordion({ decks, setDecks, recommendableAugments, recommendableItems, allItems }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const [error, setError] = useState<string | null>(null);

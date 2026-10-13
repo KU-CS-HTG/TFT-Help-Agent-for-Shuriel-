@@ -9,6 +9,8 @@ import type {
   Item,
   ItemNote,
   ItemTierPlacement,
+  PatchDeckSelection,
+  PatchVersion,
   StageNote,
   TierPlacement,
 } from "./types";
@@ -36,6 +38,8 @@ export interface Database {
       deck_sub_images: Table<DeckSubImage>;
       deck_recommended_augments: Table<DeckRecommendedAugment>;
       deck_recommended_items: Table<DeckRecommendedItem>;
+      patch_versions: Table<PatchVersion>;
+      patch_deck_selections: Table<PatchDeckSelection>;
       items: Table<Item>;
       item_tier_placements: Table<ItemTierPlacement>;
       item_notes: Table<ItemNote>;
